@@ -58,7 +58,7 @@ io.on('connection', function (socket) {
         io.emit('chat.post_message', {
             "ts": timestamp(),
             "username": data.username,
-            "icon": "https://avatars.slack-edge.com/2015-12-22/17173671875_21dcf6ae09fd3b9f261c_48.png",
+            "icon": data.icon,
             "message": check_msg(data.message)
         });
 
