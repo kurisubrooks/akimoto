@@ -44,6 +44,12 @@ body {
     min-width: 300px;
 }
 
+.login #login_error {
+    display: none;
+    color: #E65757;
+    margin-bottom: 10px;
+}
+
 .login #auth_input {
     border: 2px solid #4ecc71;
     border-radius: 5px;
