@@ -1,0 +1,12 @@
+{
+  "name": "akimoto",
+  "version": "0.0.1",
+  "description": "",
+  "dependencies": {
+    "crimson": "0.0.1",
+    "express": "4.10.2",
+    "moment": "^2.10.6",
+    "mongodb": "^2.1.2",
+    "socket.io": "1.2.0"
+  }
+}

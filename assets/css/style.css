@@ -1,0 +1,169 @@
+@charset 'UTF-8';
+
+* { box-sizing: border-box; }
+
+html, 
+body, 
+.container { height: 100%; }
+
+body {
+    margin: 0;
+	padding: 0;
+	font-size: 14px;
+    font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', Helvetica, Arial;
+    line-height: 1.2;
+}
+
+/*
+// Login Form (Popup)
+*/
+
+.overlay {
+    display: none;
+    
+    position: absolute;
+    background: rgba(255, 255, 255, 0.75);
+    height: 100%;
+    width: 100%;
+    z-index: 50;
+}
+
+.login {
+    display: none;
+
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    min-width: 300px;
+}
+
+.login #auth_input {
+	border: 2px solid #4ecc71;
+	border-radius: 5px;
+	padding: 12px;
+	width: 100%;
+}
+
+.login #auth_input:focus { outline: none; }
+
+/*
+// Header (Title Bar)
+*/
+
+.header {
+    position: fixed;
+    z-index: 20;
+    top: 0;
+	font-size: 18px;
+    background: #fff;
+	width: 100%;
+	padding: 10px 16px;
+	border-bottom: 2px solid #ddd;
+    margin-bottom: 50px;
+}
+
+.header .toolbar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.header .toolbar a { color: #666; }
+
+/*
+// Display
+*/
+
+.container {
+    display: flex;
+}
+
+/*
+// Sidebar
+*/
+
+.sidebar {
+    padding: 48px 8px 8px;
+    width: 180px;
+    height: 100%;
+    background: #eee;
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+/*
+// Chat Display
+*/
+
+.content {
+    padding: 43px 0;
+    flex-grow: 1;
+    
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.chat_block {
+	padding: 8px 16px;
+	background-color: #fff;
+}
+
+.chat_block:hover { background-color: #fafafa; }
+
+.chat_block .chat_img {
+    display: inline-block;
+    width: 32px;
+    border-radius: 4px;
+    margin-right: 10px;
+    float: left;
+}
+
+.chat_block #chat_ts {
+    margin-left: 8px;
+    color: #aaa;
+	cursor: pointer;
+}
+
+.chat_block #chat_ts:hover { text-decoration: underline; }
+.chat_block #chat_user { font-weight: bold; }
+.chat_block #chat_msg { display: block; }
+
+/*
+// Footer (Chat Input)
+*/
+
+.footer {
+    padding-bottom: 30px;
+}
+
+.footer form {
+    position: fixed;
+    z-index: 20;
+    bottom: 0;
+	padding: 10px;
+    width: 100%;
+    background: #fff;
+}
+
+.footer form #chat_input {
+	border: 2px solid #ddd;
+	border-radius: 5px;
+	padding: 12px;
+	width: 100%;
+}
+
+.footer form #chat_input:focus {
+	border-color: #cdcdcd;
+	outline: none;
+}

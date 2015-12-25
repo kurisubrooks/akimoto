@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>秋元</title>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="./assets/css/normalize.min.css" rel="stylesheet">
+    <link href="./assets/css/fonts.css" rel="stylesheet">
+	<link href="./assets/css/style.css" rel="stylesheet">
+	<script src="./assets/js/socket.io.js"></script>
+    <script src="./assets/js/jquery.min.js"></script>
+	<script src="./assets/js/moment.min.js"></script>
+	<script src="./assets/js/client.js"></script>
+</head>
+<body>
+    
+    <div class="overlay"></div>
+
+    <div class="login">
+        <h1>Login</h1>
+        <form id="login_form" action="">
+            <input id="auth_input" type="text" placeholder="Nickname" autofocus>
+        </form>
+    </div>
+
+	<div class="header">
+		<b>Akimoto</b>
+
+        <div class="toolbar">
+            <a href="#"><i class="fa fa-fw fa-ellipsis-h"></i></a>
+        </div>
+	</div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <b>Sidebar</b>
+        </div>
+
+        <div class="content">
+            <div class="client">
+                <!-- <div class="chat_message">Message</div> -->
+            </div>
+
+            <div class="footer">
+                <form id="chat_form" action="">
+                    <input id="chat_input" type="text" autocomplete="off">
+                    <!--<button id="chat_send">Send</button>-->
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
