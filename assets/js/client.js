@@ -1,19 +1,54 @@
 $(function () {
     var socket = io.connect();
     var authenticated = false;
+    var ready = false;
     var username;
-
-    notify_getPerms();
 
     if (!authenticated) {
         $('.login').show();
-        $('.overlay').show();
     }
+    
+    // Success
+    socket.on('connect', function () {
+        $('#status').css('color', '#4ecc71');
+    });
+    
+    socket.on('reconnect', function () {
+        $('#status').css('color', '#4ecc71');
+    });
+    
+    // Error
+    $('#status').click(function(){
+        socket.disconnect();
+        location.reload();
+    });
+    
+    socket.on('timeout', function () {
+        $('#status').css('color', '#e65757');
+    });
+    
+    socket.on('connect_timeout', function () {
+        $('#status').css('color', '#e65757');
+    });
+    
+    socket.on('error', function () {
+        $('#status').css('color', '#e65757');
+    });
+    
+    socket.on('disconnect', function () {
+        $('#status').css('color', '#e65757');
+    });
+    
+    socket.on('reconnect_error', function () {
+        $('#status').css('color', '#e65757');
+    });
+    
+    socket.on('reconnect_failed', function () {
+        $('#status').css('color', '#e65757');
+    });
 
     function post_message(data) {
         console.log(data);
-
-        notify_trigger(data.username + ': ' + data.message);
 
         $('.client').append($(
             '<div class="chat_block" data-ts="' + data.ts + '">' +
@@ -25,39 +60,6 @@ $(function () {
         ));
     }
 
-    function notify_getPerms() {
-        if (!('Notification' in window)) {
-            alert('Your browser doesn\'t support HTML5 Notifications. Consider upgrading your browser.');
-            return;
-        }
-
-        Notification.requestPermission(function (permission) {
-            if (Notification.permission == 'granted') {
-                var notification = new Notification('Akimoto', {
-                    body: 'Notifications Enabled.'
-                });
-
-                setTimeout(function () {
-                    notification.close();
-                }, 2500);
-            }
-        });
-    }
-
-    function notify_trigger(body) {
-        if (Notification.permission == 'granted') {
-            var notification = new Notification('Akimoto', {
-                body: body
-            });
-
-            setTimeout(function () {
-                notification.close();
-            }, 4500);
-        } else if (Notification.permission != 'denied') {
-            notify_getPerms();
-        }
-    }
-
     socket.on('chat.post_message', function (data) {
         post_message({
             "ts": data.ts,
@@ -66,26 +68,22 @@ $(function () {
             "message": data.message
         });
     });
-
-    $('#login_form').submit(function () {
-        if (String($('#auth_input').val()).length >= 16) {
-            $('#login_error').show();
-            $('#login_error').text('Error! This username is too long.');
-            console.log('Error: Username too long.');
-            return false;
-        } else {
-            socket.emit('auth.user_auth', {
-                "username": $('#auth_input').val()
-            });
-
-            username = $('#auth_input').val();
-            $('#auth_input').val('');
-
+    
+    socket.on('auth.user_auth', function (data) {
+        console.log(data);
+        console.log(data.temp);
+        
+        if (data.ok) {
+            username = $('#input_username').val();
+            
             socket.emit('chat.post_message', {
                 "username": username,
                 "message": username + " joined!"
             });
-
+            
+            $('#input_username').val('');
+            $('#input_password').val('');
+            
             $('.login').hide();
             $('.login').attr("disabled", true);
             $('.overlay').fadeOut(350);
@@ -95,16 +93,33 @@ $(function () {
             authenticated = true;
             return false;
         }
+        
+        else {
+            console.log('Error: ' + data.reason);
+            $('#login_error').show();
+            $('#login_error').text(data.reason);
+            $('#input_username').css('border-color', '#e65757');
+            return false;
+        }
+    });
+
+    $('#login_form').submit(function () {
+        socket.emit('auth.user_auth', {
+            "username": $('#input_username').val(),
+            "password": $('#input_password').val()
+        });
+        
+        return false;
     });
 
     $('#chat_form').submit(function () {
         if (username !== undefined) {
             socket.emit('chat.post_message', {
                 "username": username,
-                "message": $('#chat_input').val()
+                "message": $('#input_chatmsg').val()
             });
 
-            $('#chat_input').val('');
+            $('#input_chatmsg').val('');
             return false;
         } else {
             post_message({
@@ -117,3 +132,38 @@ $(function () {
         }
     });
 });
+
+/*
+function notify_getPerms() {
+    if (!('Notification' in window)) {
+        alert('Your browser doesn\'t support Notifications. Consider upgrading!');
+        return;
+    }
+
+    Notification.requestPermission(function (permission) {
+        if (Notification.permission == 'granted') {
+            var notification = new Notification('Akimoto', {
+                body: 'Notifications Enabled.'
+            });
+
+            setTimeout(function () {
+                notification.close();
+            }, 2500);
+        }
+    });
+}
+
+function notify_trigger(body) {
+    if (Notification.permission == 'granted') {
+        var notification = new Notification('Akimoto', {
+            body: body
+        });
+
+        setTimeout(function () {
+            notification.close();
+        }, 4500);
+    } else if (Notification.permission != 'denied') {
+        notify_getPerms();
+    }
+}
+*/

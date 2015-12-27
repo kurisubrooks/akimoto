@@ -13,6 +13,7 @@ body {
     font-size: 14px;
     font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', Helvetica, Arial;
     line-height: 1.2;
+    color: #000;
 }
 
 
@@ -21,12 +22,11 @@ body {
 */
 
 .overlay {
-    display: none;
     position: absolute;
-    background: rgba(255, 255, 255, 0.75);
+    z-index: 50;
     height: 100%;
     width: 100%;
-    z-index: 50;
+    background: rgba(255, 255, 255, 0.75);
 }
 
 .login {
@@ -46,18 +46,20 @@ body {
 
 .login #login_error {
     display: none;
-    color: #E65757;
+    color: #e65757;
     margin-bottom: 10px;
 }
 
-.login #auth_input {
+.login .auth_input {
+    display: inline-block;
+    margin-top: 5px;
     border: 2px solid #4ecc71;
     border-radius: 5px;
     padding: 12px;
     width: 100%;
 }
 
-.login #auth_input:focus {
+.login .auth_input:focus {
     outline: none;
 }
 
@@ -158,9 +160,37 @@ body {
     display: block;
 }
 
+/*
+// Status
+*/
+
+#status {
+    cursor: pointer;
+    float: right;
+    padding: 1px;
+}
+
+.users_status ul {
+    margin: 0;
+    padding: 5px 10px;
+    list-style: none;
+}
+
+.users_status #user {
+    
+}
+
+.users_status #user.user-active {
+    color: #000;
+}
+
+.users_status #user.user-inactive {
+    color: #ddd;
+}
+
 
 /*
-// Footer (Chat Input)
+// Chat Input
 */
 
 .footer {
@@ -176,14 +206,14 @@ body {
     background: #fff;
 }
 
-.footer form #chat_input {
+.footer form #input_chatmsg {
     border: 2px solid #ddd;
     border-radius: 5px;
     padding: 12px;
-    width: 100%;
+    width: 80%;
 }
 
-.footer form #chat_input:focus {
+.footer form #input_chatmsg:focus {
     border-color: #cdcdcd;
     outline: none;
 }
