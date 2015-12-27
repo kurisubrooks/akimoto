@@ -60,7 +60,7 @@ $(function () {
         ));
     }
 
-    socket.on('chat.post_message', function (data) {
+    socket.on('chat.post', function (data) {
         post_message({
             "ts": data.ts,
             "username": data.username,
@@ -69,14 +69,13 @@ $(function () {
         });
     });
     
-    socket.on('auth.user_auth', function (data) {
+    socket.on('auth.user', function (data) {
         console.log(data);
-        console.log(data.temp);
         
         if (data.ok) {
             username = $('#input_username').val();
             
-            socket.emit('chat.post_message', {
+            socket.emit('chat.post', {
                 "username": username,
                 "message": username + " joined!"
             });
@@ -104,30 +103,43 @@ $(function () {
     });
 
     $('#login_form').submit(function () {
-        socket.emit('auth.user_auth', {
-            "username": $('#input_username').val(),
-            "password": $('#input_password').val()
-        });
+        if ($('#input_username').val() == '') {
+            $('#input_username').css('border-color', '#e65757');
+            return false;
+        }
         
-        return false;
+        else {
+            socket.emit('auth.user', {
+                "username": $('#input_username').val(),
+                "password": $('#input_password').val()
+            });
+
+            return false;
+        }
     });
 
     $('#chat_form').submit(function () {
-        if (username !== undefined) {
-            socket.emit('chat.post_message', {
+        if ($('#input_chatmsg').val() == '') {
+             $('#input_chatmsg').css('border-color', '#e65757');
+            return false;
+        }
+
+        else if (username == undefined) {
+            post_message({
+                "ts": moment().format('X'),
+                "username": "Notice",
+                "message": "You need to log in before you can send a message!"
+            });
+
+            return false;
+        } else {
+            socket.emit('chat.post', {
                 "username": username,
                 "message": $('#input_chatmsg').val()
             });
 
+            $('#input_chatmsg').css('border-color', '#ddd');
             $('#input_chatmsg').val('');
-            return false;
-        } else {
-            post_message({
-                "ts": moment().format('X'),
-                "username": "Akimoto",
-                "message": "You need to log in before you can send a message!"
-            });
-
             return false;
         }
     });
