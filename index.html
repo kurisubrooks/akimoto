@@ -21,6 +21,7 @@
         
         <form id="login_form" action="">
             <input class="auth_input" id="input_username" type="text" placeholder="Username" autofocus>
+            <!--<input class="auth_input" id="input_password" type="text" placeholder="Password">-->
         </form>
     </div>
 
@@ -28,6 +29,7 @@
         <div class="brand">Akimoto</div>
 
         <div class="toolbar">
+            <i class="fa fa-fw fa-power-off" id="status"></i>
             <i class="fa fa-fw fa-ellipsis-h"></i>
         </div>
     </div>
@@ -35,9 +37,8 @@
     <div class="container">
         <div class="sidebar">
             <span class="users_online">Online</span>
-            <i class="fa fa-fw fa-power-off" id="status"></i>
             <div class="users_status">
-                <ul>
+                <ul id="users">
                     <li id="user">?</li>
                 </ul>
             </div>
