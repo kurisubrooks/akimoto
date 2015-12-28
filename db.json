@@ -1,0 +1,22 @@
+{
+    "users": {
+        "kurisu": {
+            "uuid": "1",
+            "username": "Kurisu",
+            "password": "1",
+            "icon": "https://avatars.slack-edge.com/2015-12-26/17401182054_17dbb1a654de29ed84dc_48.png"
+        },
+        "justin": {
+            "uuid": "2",
+            "username": "Justin",
+            "password": "2",
+            "icon": "https://avatars.slack-edge.com/2015-12-04/15937409075_cbf0b4e953b32e953a53_48.jpg"
+        },
+        "kaori": {
+            "uuid": "3",
+            "username": "Kaori",
+            "password": "3",
+            "icon": "https://avatars.slack-edge.com/2015-12-26/17398836160_f4a5341a3d24024b6552_48.png"
+        }
+    }
+}
