@@ -42,6 +42,17 @@ $(function () {
     function post(data) {
         console.log(data);
 
+        var chat_block = $("<div class='chat_block' data-ts='" + data.ts + "'></div>");
+    	var chat_user = $("<span id='chat_user'></span>"); chat_user.text(data.username);
+    	var chat_time = $("<span id='chat_ts'></span>"); chat_time.text(moment.unix(data.ts).format("hh:mma"));
+    	var chat_msg = $("<span id='chat_msg'></span>"); chat_msg.text(data.message);
+
+    	chat_block.append(chat_user); 
+    	chat_block.append(chat_time); 
+    	chat_block.append(chat_msg);
+    	$client.append(chat_block);
+
+    	/*
         $client.append($(
             '<div class="chat_block" data-ts="' + data.ts + '">' +
             //'<img class="chat_img" src="' + data.icon + '" width="32px">' +
@@ -50,6 +61,7 @@ $(function () {
             '<span id="chat_msg">' + data.message + '</span>' +
             '</div>'
         ));
+		*/
     }
 
     socket.on('chat.post', function (data) {
