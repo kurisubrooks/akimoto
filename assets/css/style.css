@@ -120,6 +120,10 @@ body {
     overflow-x: hidden;
 }
 
+.client {
+    padding-bottom: 30px;
+}
+
 
 /*
 // Chat Display
@@ -160,6 +164,7 @@ body {
     display: block;
 }
 
+
 /*
 // Status
 */
@@ -175,9 +180,7 @@ body {
     list-style: none;
 }
 
-.users_status #user {
-    
-}
+.users_status #user {}
 
 .users_status #user.user-active {
     color: #000;
@@ -192,24 +195,30 @@ body {
 // Chat Input
 */
 
-.footer {
-    padding-bottom: 30px;
+@media (min-width: 600px) {
+    .footer {
+        padding-left: 180px;
+    }
 }
 
-.footer form {
+.footer {
     position: fixed;
     z-index: 20;
     bottom: 0;
-    padding: 10px;
     width: 100%;
+}
+
+.footer form {
+    padding: 10px;
     background: #fff;
 }
 
 .footer form #input_chatmsg {
+    margin: 0 auto;
     border: 2px solid #ddd;
     border-radius: 5px;
     padding: 12px;
-    width: 80%;
+    width: 100%;
 }
 
 .footer form #input_chatmsg:focus {

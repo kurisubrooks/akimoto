@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>秋元</title>
+    <title>Akimoto</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./assets/css/base.css" rel="stylesheet">
@@ -18,9 +18,9 @@
     <div class="login">
         <h1 class="login_title">Login</h1>
         <div id="login_error"></div>
-        
+
         <form id="login_form" action="">
-            <input class="auth_input" id="input_username" type="text" placeholder="Username" autofocus>
+            <input class="auth_input" id="input_username" type="text" placeholder="Username" autofocus autocomplete="off">
             <!--<input class="auth_input" id="input_password" type="text" placeholder="Password">-->
         </form>
     </div>
@@ -34,12 +34,19 @@
         </div>
     </div>
 
+    <div class="footer">
+        <form id="chat_form" action="">
+            <input id="input_chatmsg" type="text" autocomplete="off">
+            <!--<button id="chat_send">Send</button>-->
+        </form>
+    </div>
+
     <div class="container">
         <div class="sidebar">
-            <span class="users_online">Online</span>
+            <span class="users_online"> </span>
             <div class="users_status">
                 <ul id="users">
-                    <li id="user">?</li>
+                    <li id="user"> </li>
                 </ul>
             </div>
         </div>
@@ -47,13 +54,6 @@
         <div class="content">
             <div class="client">
                 <!-- <div class="chat_message">Message</div> -->
-            </div>
-
-            <div class="footer">
-                <form id="chat_form" action="">
-                    <input id="input_chatmsg" type="text" autocomplete="off">
-                    <!--<button id="chat_send">Send</button>-->
-                </form>
             </div>
         </div>
     </div>

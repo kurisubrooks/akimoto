@@ -1,181 +1,151 @@
-$(function () {
+$(function() {
     var socket = io.connect();
-    var authenticated = false;
-    var ready = false;
-    var username;
 
-    if (!authenticated) {
-        $('.login').show();
-    }
+    var username;
+    var online;
+    var authenticated = false;
+    var connected = false;
+    var typing = false;
     
-    // Success
-    socket.on('connect', function () {
-        $('#status').css('color', '#4ecc71');
-    });
+    var $status = $('#status');
+    var $client = $('.client');
+    var $login = $('.login');
+    var $overlay = $('.overlay');
+    var $loginerr = $('#login_error')
+    var $loginform = $('#login_form');
+    var $chatform = $('#chat_form');
+    var $inputuser = $('#input_username');
+    var $inputchat = $('#input_chatmsg');
+   
+    // Open Login Window if not authenticated
+    if (!authenticated) $login.show();
     
-    socket.on('reconnect', function () {
-        $('#status').css('color', '#4ecc71');
-    });
+    // Client Status
+    socket.on('connect', function() {$status.css('color', '#4ecc71');});
+    socket.on('reconnect', function() {$status.css('color', '#4ecc71');});
+	socket.on('timeout', function() {$status.css('color', '#e65757');});
+    socket.on('connect_timeout', function() {$status.css('color', '#e65757');});
+    socket.on('error', function() {$status.css('color', '#e65757');});
+    socket.on('disconnect', function() {$status.css('color', '#e65757');});
+    socket.on('reconnect_error', function() {$status.css('color', '#e65757');});
+    socket.on('reconnect_failed', function() {$status.css('color', '#e65757');});
     
-    // Error
-    $('#status').click(function(){
+    $status.click(function(){
         socket.disconnect();
         location.reload();
     });
     
-    socket.on('timeout', function () {
-        $('#status').css('color', '#e65757');
-    });
+    function time() {
+        return moment().format('X');
+    }
     
-    socket.on('connect_timeout', function () {
-        $('#status').css('color', '#e65757');
-    });
-    
-    socket.on('error', function () {
-        $('#status').css('color', '#e65757');
-    });
-    
-    socket.on('disconnect', function () {
-        $('#status').css('color', '#e65757');
-    });
-    
-    socket.on('reconnect_error', function () {
-        $('#status').css('color', '#e65757');
-    });
-    
-    socket.on('reconnect_failed', function () {
-        $('#status').css('color', '#e65757');
-    });
-
-    function post_message(data) {
+    function post(data) {
         console.log(data);
-
-        $('.client').append($(
+        
+        $client.append($(
             '<div class="chat_block" data-ts="' + data.ts + '">' +
-            '<img class="chat_img" src="' + data.icon + '" width="32px">' +
-            '<span id="chat_user">' + data.username + '</span>' +
-            '<span id="chat_ts">' + moment.unix(data.ts).format("hh:mma") + '</span>' +
-            '<span id="chat_msg">' + data.message + '</span>' +
+                //'<img class="chat_img" src="' + data.icon + '" width="32px">' +
+                '<span id="chat_user">' + data.username + '</span>' +
+                '<span id="chat_ts">' + moment.unix(data.ts).format("hh:mma") + '</span>' +
+                '<span id="chat_msg">' + data.message + '</span>' +
             '</div>'
         ));
     }
 
-    socket.on('chat.post', function (data) {
-        post_message({
-            "ts": data.ts,
+    socket.on('chat.post', function(data) {
+        post(data);
+    });
+
+    socket.on('user.join', function(data) {
+        console.log(data);
+        
+        post({
+            "ok": true,
+            "ts": time(),
             "username": data.username,
-            "icon": data.icon,
-            "message": data.message
+            "message": data.username + ' joined!'
         });
     });
     
-    socket.on('auth.user', function (data) {
+    socket.on('user.auth', function(data) {
         console.log(data);
         
         if (data.ok) {
-            username = $('#input_username').val();
-            
-            socket.emit('chat.post', {
-                "username": username,
-                "message": username + " joined!"
-            });
-            
-            $('#input_username').val('');
-            $('#input_password').val('');
-            
-            $('.login').hide();
-            $('.login').attr("disabled", true);
-            $('.overlay').fadeOut(350);
-            $('#chat_input').focus();
-            $('#chat_input').attr("autofocus");
-
+            connected = true;
+            username = $inputuser.val();
             authenticated = true;
+
+            $inputuser.val('');
+            $login.hide();
+            $overlay.fadeOut(350);
+            $login.attr('disabled');
+            $inputchat.focus();
             return false;
         }
         
         else {
-            console.log('Error: ' + data.reason);
-            $('#login_error').show();
-            $('#login_error').text(data.reason);
-            $('#input_username').css('border-color', '#e65757');
-            return false;
+            $loginerr.show();
+            $loginerr.text(data.message);
+            $inputuser.css('border-color', '#e65757');
         }
     });
+    
+    /*socket.on('user.quit', function(data) {
+        console.log(data);
+        
+        socket.emit('chat.post', {
+            "ok": true,
+            "ts": time(),
+            "username": data.username,
+            "message": data.username + ' left.'
+        });
+    });*/
 
-    $('#login_form').submit(function () {
-        if ($('#input_username').val() == '') {
-            $('#input_username').css('border-color', '#e65757');
+    $loginform.submit(function() {
+        if ($inputuser.val() === '') {
+            $inputuser.css('border-color', '#e65757');
             return false;
         }
         
         else {
-            socket.emit('auth.user', {
-                "username": $('#input_username').val(),
-                "password": $('#input_password').val()
+            socket.emit('user.auth', {
+                "ok": true,
+                "ts": time(),
+                "username": $inputuser.val()
             });
-
+            
             return false;
         }
     });
-
-    $('#chat_form').submit(function () {
-        if ($('#input_chatmsg').val() == '') {
-             $('#input_chatmsg').css('border-color', '#e65757');
+    
+    $chatform.submit(function() {
+        if ($inputchat.val() === '') {
+            $inputchat.css('border-color', '#e65757');
             return false;
         }
-
-        else if (username == undefined) {
-            post_message({
-                "ts": moment().format('X'),
-                "username": "Notice",
+        
+        else if (username === undefined) {
+            post({
+                "ok": false,
+                "ts": time(),
+                "username": notice_user,
                 "message": "You need to log in before you can send a message!"
             });
-
+            
             return false;
-        } else {
+        }
+        
+        else if (connected) {
             socket.emit('chat.post', {
+                "ok": true,
+                "ts": time(),
                 "username": username,
-                "message": $('#input_chatmsg').val()
+                "message": $inputchat.val()
             });
-
-            $('#input_chatmsg').css('border-color', '#ddd');
-            $('#input_chatmsg').val('');
+            
+            $inputchat.css('border-color', '#ddd');
+            $inputchat.val('');
             return false;
         }
     });
 });
-
-/*
-function notify_getPerms() {
-    if (!('Notification' in window)) {
-        alert('Your browser doesn\'t support Notifications. Consider upgrading!');
-        return;
-    }
-
-    Notification.requestPermission(function (permission) {
-        if (Notification.permission == 'granted') {
-            var notification = new Notification('Akimoto', {
-                body: 'Notifications Enabled.'
-            });
-
-            setTimeout(function () {
-                notification.close();
-            }, 2500);
-        }
-    });
-}
-
-function notify_trigger(body) {
-    if (Notification.permission == 'granted') {
-        var notification = new Notification('Akimoto', {
-            body: body
-        });
-
-        setTimeout(function () {
-            notification.close();
-        }, 4500);
-    } else if (Notification.permission != 'denied') {
-        notify_getPerms();
-    }
-}
-*/

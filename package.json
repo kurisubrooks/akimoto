@@ -1,13 +1,17 @@
 {
   "name": "akimoto",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index"
+  },
+  "author": "kurisubrooks",
+  "license": "ISC",
   "dependencies": {
     "crimson": "0.0.1",
-    "express": "4.10.2",
-    "lodash": "^3.10.1",
+    "express": "^4.13.3",
     "moment": "^2.10.6",
-    "mongodb": "^2.1.2",
-    "socket.io": "1.2.0"
+    "socket.io": "^1.3.7"
   }
 }
