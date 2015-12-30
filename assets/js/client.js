@@ -47,10 +47,12 @@ $(function () {
     	var chat_time = $("<span id='chat_ts'></span>"); chat_time.text(moment.unix(data.ts).format("hh:mma"));
     	var chat_msg = $("<span id='chat_msg'></span>"); chat_msg.text(data.message);
 
-    	chat_block.append(chat_user); 
-    	chat_block.append(chat_time); 
+    	chat_block.append(chat_user);
+    	chat_block.append(chat_time);
     	chat_block.append(chat_msg);
     	$client.append(chat_block);
+
+      parse_emoji('.chat_block[data-ts="' + data.ts + '"] #chat_msg');
 
     	/*
         $client.append($(
@@ -102,7 +104,7 @@ $(function () {
 
     /*socket.on('user.quit', function(data) {
         console.log(data);
-        
+
         socket.emit('chat.post', {
             "ok": true,
             "ts": time(),
