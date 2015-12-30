@@ -20,6 +20,8 @@ $(function () {
     // Open Login Window if not authenticated
     if (!authenticated) $login.show();
 
+    //$('.nano').nanoScroller({ scroll: 'bottom' });
+
     // Client Status
     socket.on('connect', function () {$status.css('color', '#4ecc71');});
     socket.on('reconnect', function () {$status.css('color', '#4ecc71');});
