@@ -11,7 +11,7 @@ $(function () {
     var $client = $('.client');
     var $login = $('.login');
     var $overlay = $('.overlay');
-    var $loginerr = $('#login_error')
+    var $loginerr = $('#login_error');
     var $loginform = $('#login_form');
     var $chatform = $('#chat_form');
     var $inputuser = $('#input_username');
@@ -38,21 +38,27 @@ $(function () {
     function time() {
         return moment().format('X');
     }
+    
+    $.preloadImages = function() {
+        for (var i = 0; i < arguments.length; i++) {
+            $('<img />').attr('src', arguments[i]);
+        }
+    }
+
+    $.preloadImages('./assets/img/sheet_google_64.png');
 
     function post(data) {
-        console.log(data);
+        emojify('.chat_block[data-ts="' + data.ts + '"] #chat_msg');
 
-        var chat_block = $("<div class='chat_block' data-ts='" + data.ts + "'></div>");
-    	var chat_user = $("<span id='chat_user'></span>"); chat_user.text(data.username);
-    	var chat_time = $("<span id='chat_ts'></span>"); chat_time.text(moment.unix(data.ts).format("hh:mma"));
-    	var chat_msg = $("<span id='chat_msg'></span>"); chat_msg.text(data.message);
-
+        var chat_block = $('<div class="chat_block" data-ts="' + data.ts + '"></div>');
+    	var chat_user = $('<span id="chat_user"></span'); chat_user.text(data.username);
+    	var chat_time = $('<span id="chat_ts"></span>'); chat_time.text(moment.unix(data.ts).format('hh:mma'));
+    	var chat_msg = $('<span id="chat_msg"></span>'); chat_msg.text(data.message);
+        
     	chat_block.append(chat_user);
     	chat_block.append(chat_time);
     	chat_block.append(chat_msg);
     	$client.append(chat_block);
-
-      parse_emoji('.chat_block[data-ts="' + data.ts + '"] #chat_msg');
 
     	/*
         $client.append($(
@@ -67,7 +73,13 @@ $(function () {
     }
 
     socket.on('chat.post', function (data) {
-        post(data);
+        console.log(data);
+        
+        if (!data.ok) $inputchat.css('border-color', '#e65757');
+        else {
+            post(data);
+            $inputchat.css('border-color', '#ddd');
+        }
     });
 
     socket.on('user.join', function (data) {

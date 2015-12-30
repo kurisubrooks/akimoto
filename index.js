@@ -2,6 +2,7 @@ var express = require('express'),
     app = express(),
     http = require('http').Server(app),
     io = require('socket.io')(http),
+    //mongo = require('mongodb').MongoClient,
     crimson = require('crimson'),
     moment = require('moment');
 
@@ -12,7 +13,7 @@ app.get('/', function (req, res) {
 });
 
 http.listen(port, function () {
-    console.log('Listening on 127.0.0.1:' + port);
+    crimson.success('Listening on 127.0.0.1:' + port);
 });
 
 /*
@@ -21,6 +22,7 @@ http.listen(port, function () {
 */
 
 var online_users = 0;
+var commands = ['help', 'me', 'away'];
 
 function time() {
     return moment().format('X');
@@ -48,7 +50,7 @@ io.on('connection', function (socket) {
             "ok": true,
             "ts": time(),
             "username": socket.username
-        })
+        });
 
         io.emit('user.join', {
             "ok": true,
@@ -61,12 +63,37 @@ io.on('connection', function (socket) {
     socket.on('chat.post', function (data) {
         crimson.info(socket.username + ': ' + data.message);
 
-        io.emit('chat.post', {
-            "ok": true,
-            "ts": time(),
-            "username": socket.username,
-            "message": data.message
-        });
+		if (data.message.startsWith('/')) {
+			crimson.debug('yay, a command :D');
+            var text = data.message;
+                text.slice(0, 1);
+                text.split(' ');
+                console.log(text);
+            
+            if (text.length > 1 && commands.indexOf(text[0]) >= 0) {
+                crimson.debug('k great, the command exists');
+                console.log(text);
+            }
+            
+            else {
+                socket.emit('chat.post', {
+                    "ok": false,
+                    "ts": time(),
+                    "username": socket.username,
+                    "reason": "Invalid Command",
+                    "message": text
+                });
+            }
+		}
+        
+        else {
+            io.emit('chat.post', {
+                "ok": true,
+                "ts": time(),
+                "username": socket.username,
+                "message": data.message
+            });
+        }
     });
 
     socket.on('disconnect', function () {
@@ -91,20 +118,20 @@ io.on('connection', function (socket) {
     });
 
     /*
-	socket.on('chat.typing', function() {
-		socket.emit('user.typing', {
-			"ok": true,
-			"ts": time(),
-			"username": socket.username
-		});
+    socket.on('chat.typing', function() {
+        socket.emit('user.typing', {
+    	    "ok": true,
+    	    "ts": time(),
+    	    "username": socket.username
+        });
 	});
 
 	socket.on('chat.typing.stop', function() {
-		socket.emit('user.typing.stop', {
-			"ok": true,
-			"ts": time(),
-			"username": socket.username
-		});
+        socket.emit('user.typing.stop', {
+    	    "ok": true,
+    	    "ts": time(),
+    	    "username": socket.username
+        });
 	});
     */
 });
