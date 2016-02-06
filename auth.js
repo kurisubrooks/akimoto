@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const crimson = require('crimson');
 const uuid = require('node-uuid');
+const moment = require('moment');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,7 +19,7 @@ exports.new_user = (data) => {
         var email = data.username;
         var pass = data.password;
         var icon = crypto.createHash('md5').update(email).digest('hex');
-        var token = 'TOK' + crypto.randomBytes(12).toString('hex');
+        var token = 'au-' + crypto.randomBytes(12).toString('hex');
         var salt = crypto.randomBytes(24).toString('base64');
         var hash = crypto.createHash('sha256').update(pass + salt).digest('hex');
 
@@ -59,20 +60,19 @@ exports.new_user = (data) => {
     else return {
         "ok": false,
         "ts": time(),
-        "reason": "Insufficient Details",
-        "message": "Requires Username, Password and Email."
+        "reason": "Insufficient Details"
     };
 };
 
-exports.login = (data) => {
+exports.hash = (username, password) => {
     var database = require(dbpath);
-    var user = data.username;
-    var pass = data.password;
+    var user = username;
+    var pass = password;
 
     if (!database.users[user]) return {
         "ok": false,
         "ts": time(),
-        "reason": "User doesn\'t exists"
+        "reason": "User doesn\'t exist"
     };
 
     var salt = database.users[user].salt;
@@ -88,7 +88,8 @@ exports.login = (data) => {
     } else {
         return {
             "ok": false,
-            "ts": time()
+            "ts": time(),
+            "reason": "Incorrect Password"
         };
     }
 };
