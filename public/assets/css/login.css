@@ -24,10 +24,6 @@
 }
 
 .login .auth-input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-
     display: block;
     margin-top: 5px;
     /*border: 2px solid #4ecc71;*/
