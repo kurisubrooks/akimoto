@@ -38,6 +38,10 @@ app.get('/', (req, res) => {
 app.get('/chat',     (req, res) => res.sendFile(__dirname + '/public/index.html'));
 app.get('/login',    (req, res) => res.sendFile(__dirname + '/public/login.html'));
 app.get('/register', (req, res) => res.sendFile(__dirname + '/public/register.html'));
+app.get('/logout',   (req, res) => {
+    req.session.token = '';
+    res.redirect('/login');
+});
 
 app.post('/api/auth.login', (req, res) => {
     var post = req.body;
@@ -47,7 +51,6 @@ app.post('/api/auth.login', (req, res) => {
     var password = post.password;
     var hash = auth.hash(username, password);
 
-    console.log(hash);
     if (hash.ok) {
         cookie.token = hash.token;
         res.redirect('/chat?token=' + encodeURIComponent(hash.token));
