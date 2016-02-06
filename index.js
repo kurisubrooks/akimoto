@@ -53,7 +53,7 @@ app.post('/api/auth.login', (req, res) => {
 
     if (hash.ok) {
         cookie.token = hash.token;
-        res.redirect('/chat?token=' + encodeURIComponent(hash.token));
+        res.redirect('/chat');
     } else {
         res.redirect('/login?error=' + encodeURIComponent(hash.reason));
     }
