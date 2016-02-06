@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Akimoto</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./assets/css/base.css" rel="stylesheet">
+    <link href="./assets/css/style.css" rel="stylesheet">
+    <link href="./assets/css/login.css" rel="stylesheet">
+    <script src="./assets/js/socket.io.js"></script>
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="./assets/js/moment.min.js"></script>
+    <script src="./assets/js/login.js"></script>
+</head>
+<body>
+
+    <div class="login">
+        <h1 class="login-title">Sign in</h1>
+        <h4 class="login-message">Sign in with your username and password.</h4>
+        <div id="login-error"></div>
+
+        <form id="login-form" method="POST" action="/api">
+            <input type="hidden" name="type" value="login">
+            <input class="auth-input" id="input-username" name="username" type="text" placeholder="Username" autofocus required>
+            <input class="auth-input" id="input-password" name="password" type="password" placeholder="Password" autocomplete="off" required>
+            <div>
+                <button class="auth-submit left" type="submit" value="Send">Submit</button>
+                <a href="/register" class="auth-register bold right">Create Account</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

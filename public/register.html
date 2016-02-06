@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Akimoto</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./assets/css/base.css" rel="stylesheet">
+    <link href="./assets/css/style.css" rel="stylesheet">
+    <link href="./assets/css/register.css" rel="stylesheet">
+    <script src="./assets/js/socket.io.js"></script>
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="./assets/js/moment.min.js"></script>
+    <script src="./assets/js/login.js"></script>
+</head>
+<body>
+
+    <div align="center">
+        <div class="register">
+            <h1 class="register-title">Register</h1>
+            <div id="register-error"></div>
+
+            <form id="register-form" method="POST" action="/api">
+                <input type="hidden" name="type" value="register">
+
+                <h4>Username</h4>
+                <input class="auth-input" id="input-username" name="username" type="text" placeholder="Username" autofocus required>
+
+                <h4>Email</h4>
+                <input class="auth-input" id="input-email" name="email" type="text" placeholder="Email" required>
+
+                <h4>Password</h4>
+                <input class="auth-input" id="input-password" name="password" type="password" placeholder="Password" autocomplete="off" required>
+
+                <br>
+
+                <div>
+                    <button class="auth-submit left" type="submit" value="Send">Submit</button>
+                    <a href="/login" class="auth-register bold right">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
