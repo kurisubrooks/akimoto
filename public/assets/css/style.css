@@ -11,8 +11,7 @@ body {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', Helvetica, Arial;
-    line-height: 1.2;
+    font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', YuGothic, Helvetica, Arial;
     color: #444;
 }
 
