@@ -1,0 +1,65 @@
+.login {
+    /*display: none;*/
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    min-width: 310px;
+}
+
+.login .login-title {
+    margin-top: 0;
+}
+
+.login #login-error {
+    display: none;
+    color: #e65757;
+    margin-bottom: 10px;
+}
+
+.login .auth-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    display: block;
+    margin-top: 5px;
+    /*border: 2px solid #4ecc71;*/
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+}
+
+.login .auth-input:focus {
+    outline: none;
+}
+
+.login .auth-submit {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    display: block;
+    margin-top: 5px;
+    background: #43cc71;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 8pt 18pt;
+}
+
+.login .auth-submit:focus {
+    outline: none;
+}
+
+.login .auth-register {
+    margin-top: 5px;
+    padding: 8pt 0;
+}

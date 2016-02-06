@@ -10,15 +10,32 @@ body {
 body {
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 16px;
     font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', Helvetica, Arial;
     line-height: 1.2;
-    color: #000;
+    color: #444;
+}
+
+a {
+    text-decoration: none;
+    color: #3aa3e3;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
 }
 
 
 /*
-// Login Form (Popup)
+// Core Elements
 */
 
 .overlay {
@@ -29,45 +46,6 @@ body {
     background: rgba(255, 255, 255, 0.75);
 }
 
-.login {
-    display: none;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    position: absolute;
-    text-align: center;
-    z-index: 100;
-    top: 50%;
-    left: 50%;
-    min-width: 250px;
-}
-
-.login #login_error {
-    display: none;
-    color: #e65757;
-    margin-bottom: 10px;
-}
-
-.login .auth_input {
-    display: inline-block;
-    margin-top: 5px;
-    border: 2px solid #4ecc71;
-    border-radius: 5px;
-    padding: 12px;
-    width: 100%;
-}
-
-.login .auth_input:focus {
-    outline: none;
-}
-
-
-/*
-// Header (Title Bar)
-*/
-
 .header {
     position: fixed;
     z-index: 20;
@@ -77,7 +55,6 @@ body {
     width: 100%;
     padding: 10px 16px;
     border-bottom: 2px solid #ddd;
-    margin-bottom: 50px;
 }
 
 .header .toolbar {
@@ -90,11 +67,6 @@ body {
     color: #666;
 }
 
-
-/*
-// Display
-*/
-
 .container {
     height: 100%;
     display: flex;
@@ -104,13 +76,11 @@ body {
     padding: 48px 8px 8px;
     width: 180px;
     height: 100%;
-    background: #eee;
+    background: #555;
 }
 
 @media (max-width: 600px) {
-    .sidebar {
-        display: none;
-    }
+    .sidebar { display: none; }
 }
 
 .content {
@@ -120,8 +90,26 @@ body {
     overflow-x: hidden;
 }
 
+@media (max-width: 600px) {
+    .content .error-bar { padding: 8px 13px !important; }
+}
+
+.content .error-bar {
+    display: none;
+    position: fixed;
+    padding: 8px 13px;
+    z-index: 21;
+    width: 100%;
+    padding-right: 180px;
+    text-align: center;
+    background: #E93F3C;
+    font-size: 16px;
+    color: #fff;
+}
+
 .client {
-    padding-bottom: 30px;
+    /*padding-top: 50px;*/
+    padding-bottom: 25px;
 }
 
 
@@ -129,16 +117,18 @@ body {
 // Chat Display
 */
 
-.chat_block {
+.chat-block {
+    position: relative;
+    z-index: 0;
     padding: 8px 16px;
     background-color: #fff;
 }
 
-.chat_block:hover {
+.chat-block:hover {
     background-color: #fafafa;
 }
 
-.chat_block .chat_img {
+.chat-block .chat-img {
     display: inline-block;
     width: 32px;
     border-radius: 4px;
@@ -146,21 +136,23 @@ body {
     float: left;
 }
 
-.chat_block #chat_ts {
+.chat-block #chat-ts {
     margin-left: 8px;
+    font-size: 12px;
+    
     color: #aaa;
     cursor: pointer;
 }
 
-.chat_block #chat_ts:hover {
+.chat-block #chat-ts:hover {
     text-decoration: underline;
 }
 
-.chat_block #chat_user {
+.chat-block #chat-user {
     font-weight: bold;
 }
 
-.chat_block #chat_msg {
+.chat-block #chat-msg {
     display: block;
 }
 
@@ -174,19 +166,19 @@ body {
     padding: 1px;
 }
 
-.users_status ul {
+.users-status ul {
     margin: 0;
     padding: 5px 10px;
     list-style: none;
 }
 
-.users_status #user {}
+.users-status #user {}
 
-.users_status #user.user-active {
+.users-status #user.user-active {
     color: #000;
 }
 
-.users_status #user.user-inactive {
+.users-status #user.user-inactive {
     color: #ddd;
 }
 
@@ -213,7 +205,7 @@ body {
     background: #fff;
 }
 
-.footer form #input_chatmsg {
+.footer form #input-chatmsg {
     margin: 0 auto;
     border: 2px solid #ddd;
     border-radius: 5px;
@@ -221,7 +213,7 @@ body {
     width: 100%;
 }
 
-.footer form #input_chatmsg:focus {
+.footer form #input-chatmsg:focus {
     border-color: #cdcdcd;
     outline: none;
 }
@@ -243,7 +235,7 @@ body {
     text-indent: -9999px;
     width: 100%;
     height: 100%;
-    background: url(../img/sheet_google_64.png);
+    background: url(../img/sheet-google-64.png);
     background-size: 4100%;
     cursor: text;
 }
