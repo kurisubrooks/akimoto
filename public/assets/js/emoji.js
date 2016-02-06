@@ -13,3 +13,26 @@ function emojify(input) {
         });
     });
 }
+
+var object = {
+    "aliases": {
+        ":)": ":blush:",
+        "(:": ":blush:",
+        ":D": ":smile:",
+        ";)": ":wink:",
+        ":P": ":stuck_out_tongue:",
+        ":o": ":open_mouth:",
+        ":O": ":open_mouth:",
+        ":(": ":disappointed:",
+        "):": ":disappointed:",
+        "D:": ":anguished:",
+        ":3": ":kissing:",
+        ":'(": ":cry:",
+        ":l": ":confused:",
+        ":|": ":neutral_face:",
+        ":/": ":confused:",
+        ">:(": ":angry:",
+        "<3": ":heart:",
+        "</3": ":broken_heart:"
+    }
+};
