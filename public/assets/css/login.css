@@ -59,7 +59,15 @@
     outline: none;
 }
 
-.login .auth-register {
-    margin-top: 5px;
-    padding: 8pt 0;
+.login .login-tools {
+    text-align: right;
+    margin-top: 6px;
+}
+
+.login .login-tools a {
+    display: block;
+}
+
+.login .login-tools a:first-child {
+    margin-bottom: 4px;
 }

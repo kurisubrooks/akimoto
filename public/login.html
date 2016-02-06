@@ -16,16 +16,20 @@
 
     <div class="login">
         <h1 class="login-title">Sign in</h1>
-        <h4 class="login-message">Sign in with your username and password.</h4>
         <div id="login-error"></div>
+        <h4 class="login-message">Sign in with your username and password.</h4>
 
-        <form id="login-form" method="POST" action="/api">
-            <input type="hidden" name="type" value="login">
+        <form id="login-form" method="POST" action="/api/auth.login">
             <input class="auth-input" id="input-username" name="username" type="text" placeholder="Username" autofocus required>
             <input class="auth-input" id="input-password" name="password" type="password" placeholder="Password" autocomplete="off" required>
             <div>
-                <button class="auth-submit left" type="submit" value="Send">Submit</button>
-                <a href="/register" class="auth-register bold right">Create Account</a>
+                <div class="left">
+                    <button class="auth-submit" type="submit">Sign In</button>
+                </div>
+                <div class="login-tools right">
+                    <a href="/register" class="auth-register bold">Create Account</a>
+                    <a href="/forgot" class="auth-forgot bold">Forgot Password</a>
+                </div>
             </div>
         </form>
     </div>

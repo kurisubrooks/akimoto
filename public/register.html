@@ -19,9 +19,7 @@
             <h1 class="register-title">Register</h1>
             <div id="register-error"></div>
 
-            <form id="register-form" method="POST" action="/api">
-                <input type="hidden" name="type" value="register">
-
+            <form id="register-form" method="POST" action="/api/auth.register">
                 <h4>Username</h4>
                 <input class="auth-input" id="input-username" name="username" type="text" placeholder="Username" autofocus required>
 
