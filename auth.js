@@ -14,7 +14,6 @@ function time() {
 exports.new_user = (data) => {
     if (data.username && data.email && data.password) {
         var database = require(dbpath);
-        var id = uuid.v4();
         var user = data.username;
         var email = data.username;
         var pass = data.password;
@@ -30,7 +29,8 @@ exports.new_user = (data) => {
         };
 
         var object = {
-            "uuid": id,
+            "admin": false,
+            "uuid": uuid.v4(),
             "token": token,
             "username": user,
             "email": email,
@@ -92,4 +92,8 @@ exports.hash = (username, password) => {
             "reason": "Incorrect Password"
         };
     }
+};
+
+exports.data = (token, get) => {
+    
 };
