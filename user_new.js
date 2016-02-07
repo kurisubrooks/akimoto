@@ -23,6 +23,7 @@ if (args.length == 3) {
     if (database.users[user]) throw ('[!] ERR: ').red.bold + ('User "' + user + '" already exists').red;
 
     var object = {
+        "admin": false,
         "uuid": id,
         "token": token,
         "username": user,
