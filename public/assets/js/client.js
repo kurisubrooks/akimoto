@@ -1,30 +1,29 @@
 $(function () {
     var socket = io.connect();
-
-    var username;
-    var online;
-    var authenticated = false;
+    var username, online;
     var connected = false;
     var typing = false;
 
     var $status = $('#status');
     var $client = $('.client');
-    var $login = $('.login');
-    var $overlay = $('.overlay');
-    var $loginerr = $('#login-error');
-    var $loginform = $('#login-form');
     var $chatform = $('#chat-form');
-    var $inputuser = $('#input-username');
-    var $inputpass = $('#input-password');
     var $inputchat = $('#input-chatmsg');
     var $errorbar = $('.error-bar');
 
-    // Open Login Window if not authenticated
-    if (!authenticated) $login.show();
+    function time() {
+        return moment().format('X');
+    }
+
+    $.preloadImages = function() {
+        for (var i = 0; i < arguments.length; i++) {
+            $('<img />').attr('src', arguments[i]);
+        }
+    };
 
     //$('.nano').nanoScroller({ scroll: 'bottom' });
 
-    // Client Status
+    /*
+    // Client Status 
     socket.on('connect', function () {$status.css('color', '#4ecc71');});
     socket.on('reconnect', function () {$status.css('color', '#4ecc71');});
     socket.on('timeout', function () {$status.css('color', '#e65757');});
@@ -33,21 +32,7 @@ $(function () {
     socket.on('disconnect', function () {$status.css('color', '#e65757');});
     socket.on('reconnect_error', function () {$status.css('color', '#e65757');});
     socket.on('reconnect_failed', function () {$status.css('color', '#e65757');});
-
-    $status.click(function () {
-        socket.disconnect();
-        location.reload();
-    });
-
-    function time() {
-        return moment().format('X');
-    }
-    
-    $.preloadImages = function() {
-        for (var i = 0; i < arguments.length; i++) {
-            $('<img />').attr('src', arguments[i]);
-        }
-    };
+    */
 
     $.preloadImages('./assets/img/sheet_google_64.png');
 
@@ -65,7 +50,7 @@ $(function () {
         emojify('.chat_block[data-ts="' + data.ts + '"] #chat_msg');
     }
 
-    socket.on('chat.post', function (data) {
+    socket.on('chat.post', function(data) {
         console.log(data);
         
         if (!data.ok) $inputchat.css('border-color', '#e65757');
@@ -74,65 +59,6 @@ $(function () {
             $inputchat.css('border-color', '#ddd');
         }
     });
-
-    socket.on('user.join', function (data) {
-        console.log(data);
-
-        post({
-            "ok": true,
-            "ts": time(),
-            "username": data.username,
-            "message": data.username + ' joined!'
-        });
-    });
-
-    socket.on('user.auth', function (data) {
-        console.log(data);
-
-        if (data.ok) {
-            connected = true;
-            username = $inputuser.val();
-            authenticated = true;
-
-            $inputuser.val('');
-            $login.hide();
-            $overlay.fadeOut(350);
-            $login.attr('disabled');
-            $inputchat.focus();
-            return false;
-        } else {
-            $loginerr.show();
-            $loginerr.text(data.message);
-            $inputuser.css('border-color', '#e65757');
-        }
-    });
-
-    /*socket.on('user.quit', function(data) {
-        console.log(data);
-
-        socket.emit('chat.post', {
-            "ok": true,
-            "ts": time(),
-            "username": data.username,
-            "message": data.username + ' left.'
-        });
-    });*/
-
-    /*$loginform.submit(function () {
-        if ($inputuser.val() === '') {
-            $inputuser.css('border-color', '#e65757');
-            return false;
-        } else {
-            socket.emit('user.auth', {
-                "ok": true,
-                "ts": time(),
-                "username": $inputuser.val(),
-                "password": $inputpass.val()
-            });
-
-            return true;
-        }
-    });*/
 
     $chatform.submit(function () {
         if ($inputchat.val() === '') {
