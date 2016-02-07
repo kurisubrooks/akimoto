@@ -14,6 +14,7 @@ const _ = require('lodash');
 const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
+const ip = require('ip');
 const port = 3000;
 
 app.use('/assets', express.static(__dirname + '/public/assets'));
@@ -43,12 +44,16 @@ app.get('/logout',   (req, res) => {
     res.redirect('/login');
 });
 
-app.post('/api/auth.login', (req, res) => {
-    var post = req.body;
+app.all('/api/auth.login', (req, res) => {
+    var api;
+    if (req.query.username) api = req.query;
+    else api = req.body;
+    
     var cookie = req.session;
+    console.log(api);
 
-    var username = post.username;
-    var password = post.password;
+    var username = api.username;
+    var password = api.password;
     var hash = auth.hash(username, password);
 
     if (hash.ok) {
@@ -64,5 +69,5 @@ app.post('/api/auth.register', (req, res) => {
 });
 
 http.listen(port, () => {
-    crimson.success('Listening on 127.0.0.1:' + port);
+    crimson.success('Listening on ' + ip.address() + ':' + port);
 });
