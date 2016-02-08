@@ -77,10 +77,11 @@ $(function () {
             username = data.username;
         }
     });
-    
+
     socket.on('presence.change', function(data) {
         console.log(data.presence);
         $.each(data.presence, function(key, value) {
+            console.log(key, value);
             if (value) $online_users.append('<li><i class="fa fw-fw fa-circle presence-icon"></i><span id="user">' + key + '</span></li>');
             else $online_users.append('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i><span id="user">' + key + '</span></li>');
         });

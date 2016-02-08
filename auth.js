@@ -38,7 +38,7 @@ exports.new_user = (data) => {
             "salt": salt,
             "password": hash
         };
-        
+
         database.users[user] = object;
 
         fs.writeFile(dbpath, JSON.stringify(database), (error) => {
@@ -49,14 +49,14 @@ exports.new_user = (data) => {
                 "message": error
             };
         });
-        
+
         return {
             "ok": true,
             "ts": time(),
             "message": "User added"
         };
-    } 
-    
+    }
+
     else return {
         "ok": false,
         "ts": time(),
@@ -95,5 +95,5 @@ exports.hash = (username, password) => {
 };
 
 exports.data = (token, get) => {
-    
+
 };

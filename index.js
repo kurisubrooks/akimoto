@@ -28,23 +28,25 @@ var users = [];
 var user_info = {};
 
 function getUsers() {
-    users = Object.keys(database.users);
-    for (i = 0; i < users.length; i++) {
-        var user = users[i];
-        user_info[user] = {
-            "uuid": database.users[user].uuid,
-            "token": database.users[user].token,
-            "username": database.users[user].username,
-            "icon": database.users[user].icon,
-            "online": false
+    _.forEach(database.users, (v, k) => {
+        if(typeof v !== "object") return;
+        user_info[v.token] = {
+            uuid: v.uuid,
+            token: v.token,
+            username: v.username,
+            icon: v.icon,
+            online: false
         };
-    }
-} getUsers();
+    });
+}
+getUsers();
 
 function presence() {
-    return _.mapValues(user_info, (o) => {
-        return o.online;
+    var toReturn = {};
+    _.map(user_info, (o) => {
+        toReturn[o.username] = o.online;
     });
+    return toReturn;
 }
 
 function time() {
@@ -114,9 +116,9 @@ io.on('connection', (socket) => {
         if (data.ok) {
             socket.token = data.token;
             socket.username = data.username;
-            socket.id = user_info[socket.username].uuid;
-            socket.icon = user_info[socket.username].icon;
-            user_info[socket.username].online = true;
+            socket.id = user_info[socket.token].uuid;
+            socket.icon = user_info[socket.token].icon;
+            user_info[socket.token].online = true;
             crimson.success(socket.username + ' is now active!');
             socket.emit('user.auth', {
                 "ok": true,
@@ -146,7 +148,7 @@ io.on('connection', (socket) => {
             "ok": true,
             "ts": time(),
             "username": socket.username,
-            "icon": user_info[socket.username].icon,
+            "icon": user_info[socket.token].icon,
             "message": data.message
         });
     });
@@ -154,7 +156,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         if (socket.username) {
             crimson.error(socket.username + ' is now away.');
-            user_info[socket.username].online = false;
+            user_info[socket.token].online = false;
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
