@@ -127,9 +127,10 @@ a {
     background-color: #fafafa;
 }
 
-.chat-block .chat-img {
+.chat-block .chat-icon img {
     display: inline-block;
     width: 32px;
+    margin-top: 3px;
     border-radius: 4px;
     margin-right: 10px;
     float: left;
