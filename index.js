@@ -27,7 +27,7 @@ app.use(session({secret: keychain.session}));
 var users = [];
 var user_info = {};
 
-function updateUsers() {
+function getUsers() {
     users = Object.keys(database.users);
     for (i = 0; i < users.length; i++) {
         var user = users[i];
@@ -36,10 +36,16 @@ function updateUsers() {
             "token": database.users[user].token,
             "username": database.users[user].username,
             "icon": database.users[user].icon,
-            "status": 'offline'
+            "online": false
         };
     }
-} updateUsers();
+} getUsers();
+
+function presence() {
+    return _.mapValues(user_info, (o) => {
+        return o.online;
+    });
+}
 
 function time() {
     return moment().format('X');
@@ -100,17 +106,17 @@ app.all('/api/auth.login', (req, res) => {
 
 app.post('/api/auth.register', (req, res) => {
     var post = req.body;
-    updateUsers();
+    getUsers();
 });
 
 io.on('connection', (socket) => {
     socket.on('auth.user', (data) => {
         if (data.ok) {
-            socket.username = data.username;
             socket.token = data.token;
+            socket.username = data.username;
             socket.id = user_info[socket.username].uuid;
             socket.icon = user_info[socket.username].icon;
-            user_info[socket.username].status = 'online';
+            user_info[socket.username].online = true;
             crimson.success(socket.username + ' is now active!');
             socket.emit('user.auth', {
                 "ok": true,
@@ -121,8 +127,7 @@ io.on('connection', (socket) => {
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
-                "username": socket.username,
-                "type": "join"
+                "presence": presence()
             });
         } else {
             crimson.error(data);
@@ -149,12 +154,11 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         if (socket.username) {
             crimson.error(socket.username + ' is now away.');
-            user_info[socket.username].status = 'offline';
+            user_info[socket.username].online = false;
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
-                "username": socket.username,
-                "type": "left"
+                "presence": presence()
             });
         }
     });
