@@ -2,8 +2,9 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const bodyParser = require('body-parser');
+const postman = require('body-parser');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 const crimson = require('crimson');
 const moment = require('moment');
@@ -15,11 +16,13 @@ const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
 const ip = require('ip');
+const cookie_age = 31540000000;
 const port = 4000;
 
 app.use('/assets', express.static(__dirname + '/public/assets'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser(keychain.session));
+app.use(postman.json());
+app.use(postman.urlencoded({extended: true}));
 app.use(session({secret: keychain.session, cookie: { maxAge: 2592000000 }}));
 
 var users = [];
@@ -27,10 +30,8 @@ var user_info = {};
 
 function updateUsers() {
     users = Object.keys(database.users);
-    
     for (i = 0; i < users.length; i++) {
         var user = users[i];
-
         user_info[user] = {
             "uuid": database.users[user].uuid,
             "token": database.users[user].token,
@@ -38,13 +39,11 @@ function updateUsers() {
             "icon": database.users[user].icon
         };
     }
-}
+} updateUsers();
 
 function time() {
     return moment().format('X');
 }
-
-updateUsers();
 
 app.get('/', (req, res) => {
     var cookie = req.session;
@@ -60,19 +59,27 @@ app.get('/', (req, res) => {
     }
 });
 
-app.get('/chat',     (req, res) => res.sendFile(__dirname + '/public/index.html'));
-app.get('/register', (req, res) => res.sendFile(__dirname + '/public/register.html'));
-app.get('/login',    (req, res) => {
+app.get('/login', (req, res) => {
     if (req.session.token) res.redirect('/chat');
     else res.sendFile(__dirname + '/public/login.html');
 });
-app.get('/logout',   (req, res) => {
+
+app.get('/chat', (req, res) => {
+    if (!req.session.token) res.redirect('/login');
+    else res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/register', (req, res) => {
+    res.sendFile(__dirname + '/public/register.html');
+});
+
+app.get('/logout', (req, res) => {
     req.session.token = '';
     res.redirect('/login');
 });
 
 app.all('/api/auth.login', (req, res) => {
-    var api, cookie = req.session;
+    var api, session = req.session;
     if (req.query.username) api = req.query;
     else api = req.body;
 
@@ -81,8 +88,10 @@ app.all('/api/auth.login', (req, res) => {
     var hash = auth.hash(username, password);
 
     if (hash.ok) {
-        cookie.token = hash.token;
-        cookie.user = hash.username;
+        session.user = hash.username;
+        session.token = hash.token;
+        res.cookie('user', hash.username, { maxAge: cookie_age });
+        res.cookie('token', hash.token, { maxAge: cookie_age });
         res.redirect('/chat');
     } else {
         res.redirect('/login?error=' + encodeURIComponent(hash.reason));
@@ -95,26 +104,38 @@ app.post('/api/auth.register', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    //var user = {};
-
-    socket.on('user.join', (data) => {
-        // data.username, data.token
-        if (database.users[data.username]) {
-            
+    socket.on('auth.user', (data) => {
+        if (data.ok) {
+            socket.username = data.username;
+            socket.token = data.token;
+            socket.id = user_info[socket.username].uuid;
+            socket.icon = user_info[socket.username].icon;
+            socket.emit('user.auth', {
+                "ok": true,
+                "ts": time(),
+                "username": socket.username,
+                "token": socket.token
+            });
+        } else {
+            crimson.error(data);
+            socket.emit('error', {
+                "ok": false,
+                "ts": time(),
+                "disconnect": true,
+                "reason": data.reason
+            });
         }
     });
 
     socket.on('chat.post', (data) => {
-        //if (!user.authenticated) socket.emit('disconnect');
-        crimson.info(data.username + ': ' + data.message);
-
-        /*io.emit('chat.post', {
+        crimson.info(socket.username + ': ' + data.message);
+        io.emit('chat.post', {
             "ok": true,
             "ts": time(),
-            "token": user_info[data.username].token,
-            "username": 'who fucking knows',
+            "username": socket.username,
+            "icon": user_info[socket.username].icon,
             "message": data.message
-        });*/
+        });
     });
 });
 
