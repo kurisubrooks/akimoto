@@ -13,6 +13,7 @@ body {
     font-size: 16px;
     font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', YuGothic, Helvetica, Arial;
     color: #444;
+    overflow: hidden;
 }
 
 a {
@@ -56,40 +57,30 @@ a {
     border-bottom: 2px solid #ddd;
 }
 
-.header .toolbar {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-}
-
-.header .toolbar a {
-    color: #666;
-}
-
 .container {
     height: 100%;
     display: flex;
 }
 
 .sidebar {
-    padding: 48px 8px 8px;
-    width: 180px;
+    padding: 8px 12px;
+    width: 220px;
     height: 100%;
-    background: #555;
+    background: #393939;
+    color: white;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 680px) {
     .sidebar { display: none; }
 }
 
 .content {
     padding: 43px 0;
     flex-grow: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: scroll;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 680px) {
     .content .error-bar { padding: 8px 13px !important; }
 }
 
@@ -108,7 +99,8 @@ a {
 
 .client {
     /*padding-top: 50px;*/
-    padding-bottom: 25px;
+    padding-bottom: 22px;
+    height: 100%;
 }
 
 
@@ -166,19 +158,37 @@ a {
     padding: 1px;
 }
 
-.users-status ul {
+.ornament h2 {
     margin: 0;
-    padding: 5px 10px;
-    list-style: none;
+    font-weight: lighter;
 }
 
-.users-status #user {}
+.users ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-bottom: 5px;
+    color: #DDD;
+}
 
-.users-status #user.user-active {
+.users li {
+    margin: 4px 0;
+}
+
+.users li #user {
+    padding-left: 8px;
+}
+
+.users li .presence-icon {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.users #user.user-active {
     color: #000;
 }
 
-.users-status #user.user-inactive {
+.users #user.user-inactive {
     color: #ddd;
 }
 
@@ -187,9 +197,9 @@ a {
 // Chat Input
 */
 
-@media (min-width: 600px) {
+@media (min-width: 680px) {
     .footer {
-        padding-left: 180px;
+        padding-left: 220px;
     }
 }
 
