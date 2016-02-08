@@ -5,7 +5,7 @@ $(function () {
     var cookie_user = $.cookie('user');
     var cookie_token = $.cookie('token');
 
-    var $client = $('.client');
+    var $client = $('.nano-content');
     var $chat_form = $('#chat-form');
     var $chat_box = $('#input-chatmsg');
     var $error_bar = $('.error-bar');
@@ -23,6 +23,13 @@ $(function () {
 
     $preload('./assets/img/sheet_google_64.png');
 
+    /*var $height = $(window).height() - $('.footer').height() - $('.header').height() - 22;
+    $('.nano').nanoScroller({ alwaysVisible: true });
+    $('.nano').height($height);
+    $(window).resize(function(){
+        $('.nano').height($height);
+    });*/
+
     function post(data) {
         var chat_block = $('<div class="chat-block" data-ts="' + data.ts + '"></div>');
         var chat_icon = $('<div class="chat-icon"><img src="https://www.gravatar.com/avatar/' + data.icon + '?s=32"></div>');
@@ -37,6 +44,7 @@ $(function () {
         $client.append(chat_block);
 
         emojify('.chat_block[data-ts="' + data.ts + '"] #chat_msg');
+        $('.content').scrollTop($('.content').prop('scrollHeight'));
     }
 
     if (cookie_user && cookie_token) {
