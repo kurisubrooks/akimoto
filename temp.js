@@ -18,8 +18,6 @@ io.on('connection', (socket) => {
 });
 */
 
-
-
 var online_count = 0;
 var online_users = [];
 
