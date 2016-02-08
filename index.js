@@ -16,14 +16,13 @@ const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
 const ip = require('ip');
-const cookie_age = 31540000000;
 const port = 4000;
 
 app.use('/assets', express.static(__dirname + '/public/assets'));
 app.use(cookieParser(keychain.session));
 app.use(postman.json());
 app.use(postman.urlencoded({extended: true}));
-app.use(session({secret: keychain.session, cookie: { maxAge: 2592000000 }}));
+app.use(session({secret: keychain.session}));
 
 var users = [];
 var user_info = {};
@@ -36,7 +35,8 @@ function updateUsers() {
             "uuid": database.users[user].uuid,
             "token": database.users[user].token,
             "username": database.users[user].username,
-            "icon": database.users[user].icon
+            "icon": database.users[user].icon,
+            "status": 'offline'
         };
     }
 } updateUsers();
@@ -90,8 +90,8 @@ app.all('/api/auth.login', (req, res) => {
     if (hash.ok) {
         session.user = hash.username;
         session.token = hash.token;
-        res.cookie('user', hash.username, { maxAge: cookie_age });
-        res.cookie('token', hash.token, { maxAge: cookie_age });
+        res.cookie('user', hash.username);
+        res.cookie('token', hash.token);
         res.redirect('/chat');
     } else {
         res.redirect('/login?error=' + encodeURIComponent(hash.reason));
@@ -110,11 +110,19 @@ io.on('connection', (socket) => {
             socket.token = data.token;
             socket.id = user_info[socket.username].uuid;
             socket.icon = user_info[socket.username].icon;
+            user_info[socket.username].status = 'online';
+            crimson.success(socket.username + ' is now active!');
             socket.emit('user.auth', {
                 "ok": true,
                 "ts": time(),
                 "username": socket.username,
                 "token": socket.token
+            });
+            io.emit('presence.change', {
+                "ok": true,
+                "ts": time(),
+                "username": socket.username,
+                "type": "join"
             });
         } else {
             crimson.error(data);
@@ -136,6 +144,19 @@ io.on('connection', (socket) => {
             "icon": user_info[socket.username].icon,
             "message": data.message
         });
+    });
+
+    socket.on('disconnect', () => {
+        if (socket.username) {
+            crimson.error(socket.username + ' is now away.');
+            user_info[socket.username].status = 'offline';
+            io.emit('presence.change', {
+                "ok": true,
+                "ts": time(),
+                "username": socket.username,
+                "type": "left"
+            });
+        }
     });
 });
 
