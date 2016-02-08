@@ -137,3 +137,15 @@ io.on('connection', (socket) => {
         });
     });
 });
+
+/*
+// Client Status 
+socket.on('connect', function () {$status.css('color', '#4ecc71');});
+socket.on('reconnect', function () {$status.css('color', '#4ecc71');});
+socket.on('timeout', function () {$status.css('color', '#e65757');});
+socket.on('connect_timeout', function () {$status.css('color', '#e65757');});
+socket.on('error', function () {$status.css('color', '#e65757');});
+socket.on('disconnect', function () {$status.css('color', '#e65757');});
+socket.on('reconnect_error', function () {$status.css('color', '#e65757');});
+socket.on('reconnect_failed', function () {$status.css('color', '#e65757');});
+*/
