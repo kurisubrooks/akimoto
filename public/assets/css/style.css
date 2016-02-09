@@ -11,7 +11,8 @@ body {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    font-family: 'Lato', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', YuGothic, Helvetica, Arial;
+    font-family: 'Roboto', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', YuGothic, Helvetica, Arial;
+    font-weight: 400;
     color: #444;
     overflow: hidden;
 }
@@ -119,19 +120,22 @@ a {
     background-color: #fafafa;
 }
 
-.chat-block .chat-icon img {
-    display: inline-block;
+.chat-block .chat-icon {
     width: 32px;
-    margin-top: 3px;
-    border-radius: 4px;
-    margin-right: 10px;
+    height: 32px;
     float: left;
+    display: inline-block;
+    margin: 3px 10px 0 0;
+}
+
+.chat-block .chat-icon img {
+    border-radius: 4px;
 }
 
 .chat-block #chat-ts {
     margin-left: 8px;
     font-size: 12px;
-    
+
     color: #aaa;
     cursor: pointer;
 }
