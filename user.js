@@ -52,10 +52,10 @@ prompt.get(format, function (error, result) {
         "salt": salt,
         "password": hash
     };
-    
+
     database.users[user] = object;
 
-    fs.writeFile(dbpath, JSON.stringify(database), (error) => {
+    fs.writeFile(dbpath, JSON.stringify(database, null, 4), (error) => {
         if (error) throw ('[!] ERR: '.red.bold + 'Failed to write to Database File: ' + error).red;
     });
 

@@ -26,14 +26,25 @@ app.use(session({secret: keychain.session}));
 
 var users = [];
 var user_info = {};
+var bot_info = {};
 
 function getUsers() {
     _.forEach(database.users, (v, k) => {
-        if(typeof v !== "object") return;
+        if (typeof v !== "object") return;
         user_info[v.token] = {
             uuid: v.uuid,
-            token: v.token,
             username: v.username,
+            token: v.token,
+            icon: v.icon,
+            online: false
+        };
+    });
+    _.forEach(database.bots, (v, k) => {
+        if (typeof v !== "object") return;
+        bot_info[v.token] = {
+            uuid: v.uuid,
+            username: v.username,
+            token: v.token,
             icon: v.icon,
             online: false
         };
@@ -43,9 +54,7 @@ getUsers();
 
 function presence() {
     var toReturn = {};
-    _.map(user_info, (o) => {
-        toReturn[o.username] = o.online;
-    });
+    _.map(user_info, (o) => toReturn[o.username] = o.online);
     return toReturn;
 }
 
@@ -87,11 +96,8 @@ app.get('/logout', (req, res) => {
 });
 
 app.all('/api/auth.login', (req, res) => {
-    var api, session = req.session;
-    if (req.query.username) api = req.query;
-    else api = req.body;
-
-    var username = api.username;
+    var session = req.session, api = (req.query.username) ? req.query : req.body;
+    var username = api.username.toLowerCase();
     var password = api.password;
     var hash = auth.hash(username, password);
 
@@ -111,11 +117,15 @@ app.post('/api/auth.register', (req, res) => {
     getUsers();
 });
 
+app.all('/api/chat.post', (req, res) => {
+    var session = req.session, api = (req.query.username) ? req.query : req.body;
+});
+
 io.on('connection', (socket) => {
     socket.on('auth.user', (data) => {
         if (data.ok) {
             socket.token = data.token;
-            socket.username = data.username;
+            socket.username = user_info[socket.token].username;
             socket.id = user_info[socket.token].uuid;
             socket.icon = user_info[socket.token].icon;
             user_info[socket.token].online = true;
