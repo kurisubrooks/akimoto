@@ -16,7 +16,7 @@ const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
 const ip = require('ip');
-const port = 4000;
+const port = 3000;
 
 app.use('/assets', express.static(__dirname + '/public/assets'));
 app.use(cookieParser(keychain.session));
