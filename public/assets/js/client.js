@@ -81,7 +81,7 @@ $(function() {
             [/(^|\s+)(\*)(.*?)\2(\s+|$)/g, ' <strong>$3</strong> '],
             [/(^|\s+)(\_)(.*?)\2(\s+|$)/g, ' <em>$3</em> '],
             [/(^|\s+)(\~)(.*?)\2(\s+|$)/g, ' <del>$3</del> '],
-            [/(^|\s+)(`)(.*?)\2(\s+|$)/g, ' <code>$2</code> ']
+            [/(^|\s+)(`)(.*?)\2(\s+|$)/g, ' <code>$3</code> ']
         ];
         $.each(markdown, function(i) {
             text = text.replace(markdown[i][0], markdown[i][1]);
