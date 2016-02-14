@@ -24,14 +24,13 @@ app.use(postman.json());
 app.use(postman.urlencoded({extended: true}));
 app.use(session({secret: keychain.session}));
 
-var users = [];
-var user_info = {};
-var bot_info = {};
+var users = {};
+var bots = {};
 
-function getUsers() {
+function cache() {
     _.forEach(database.users, (v, k) => {
         if (typeof v !== "object") return;
-        user_info[v.token] = {
+        users[v.token] = {
             uuid: v.uuid,
             username: v.username,
             token: v.token,
@@ -39,9 +38,10 @@ function getUsers() {
             online: false
         };
     });
+
     _.forEach(database.bots, (v, k) => {
         if (typeof v !== "object") return;
-        bot_info[v.token] = {
+        bots[v.token] = {
             uuid: v.uuid,
             username: v.username,
             token: v.token,
@@ -50,16 +50,22 @@ function getUsers() {
         };
     });
 }
-getUsers();
+cache();
 
 function presence() {
     var toReturn = {};
-    _.map(user_info, (o) => toReturn[o.username] = o.online);
+    _.map(users, (o) => toReturn[o.username] = o.online);
     return toReturn;
 }
 
 function time() {
     return moment().format('X');
+}
+
+function safe(input) {
+    input.replace('<', '&lt;');
+    input.replace('>', '&gt;');
+    return input;
 }
 
 app.get('/', (req, res) => {
@@ -96,10 +102,12 @@ app.get('/logout', (req, res) => {
 });
 
 app.all('/api/auth.login', (req, res) => {
-    var session = req.session, api = (req.query.username) ? req.query : req.body;
-    var username = api.username.toLowerCase();
-    var password = api.password;
+    var session = req.session;
+    var data = (req.query.username) ? req.query : req.body;
+    var username = data.username.toLowerCase();
+    var password = data.password;
     var hash = auth.hash(username, password);
+    crimson.debug('auth.login: {"ok":' + hash.ok + ',"username":' + data.username + '}');
 
     if (hash.ok) {
         session.user = hash.username;
@@ -114,21 +122,57 @@ app.all('/api/auth.login', (req, res) => {
 
 app.post('/api/auth.register', (req, res) => {
     var post = req.body;
-    getUsers();
+    cache();
 });
 
 app.all('/api/chat.post', (req, res) => {
-    var session = req.session, api = (req.query.username) ? req.query : req.body;
+    var session = req.session;
+    var data = (req.query.username) ? req.query : req.body;
+    crimson.debug('chat.post: ' + JSON.stringify(data));
+
+    if (data.token && data.text) {
+        if (bots[data.token]) {
+            var object = {
+                "ok": true,
+                "ts": time(),
+                "username": bots[data.token].username,
+                "icon": bots[data.token].icon,
+                "message": safe(data.text)
+            };
+
+            res.send(object);
+            io.emit('chat.post', object);
+        } else {
+            res.send({"ok": false, "ts": time(), "reason": "Bot Doesn\'t Exist"});
+        }
+    } else if (!data.token) {
+        res.send({"ok": false, "ts": time(), "reason": "Token Required"});
+    } else if (!data.text) {
+        res.send({"ok": false, "ts": time(), "reason": "Text Required"});
+    }
+
+    // get token
+    /*
+    {
+        "token": "",
+        "text": "",
+        "attachments": {
+            "title": "",
+            "text": "",
+            "image": ""
+        }
+    }
+    */
 });
 
 io.on('connection', (socket) => {
     socket.on('auth.user', (data) => {
         if (data.ok) {
             socket.token = data.token;
-            socket.username = user_info[socket.token].username;
-            socket.id = user_info[socket.token].uuid;
-            socket.icon = user_info[socket.token].icon;
-            user_info[socket.token].online = true;
+            socket.username = users[socket.token].username;
+            socket.id = users[socket.token].uuid;
+            socket.icon = users[socket.token].icon;
+            users[socket.token].online = true;
             crimson.success(socket.username + ' is now active!');
             socket.emit('user.auth', {
                 "ok": true,
@@ -158,15 +202,15 @@ io.on('connection', (socket) => {
             "ok": true,
             "ts": time(),
             "username": socket.username,
-            "icon": user_info[socket.token].icon,
-            "message": data.message
+            "icon": users[socket.token].icon,
+            "message": safe(data.message)
         });
     });
 
     socket.on('disconnect', () => {
         if (socket.username) {
             crimson.error(socket.username + ' is now away.');
-            user_info[socket.token].online = false;
+            users[socket.token].online = false;
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
