@@ -4,12 +4,27 @@
     <title>Akimoto</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
-    <link href="./assets/css/base.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,700" rel="stylesheet" type="text/css">
     <link href="./assets/css/style.css" rel="stylesheet">
-    <link href="./assets/css/login.css" rel="stylesheet">
-    <script src="./assets/js/core.js"></script>
-    <script src="./assets/js/login.js"></script>
+    <script src="./assets/js/lib/jquery.js"></script>
+    <script>
+        $(function() {
+            function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1));
+                var sURLVariables = sPageURL.split('&'), sParameterName, i;
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] === sParam) return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+
+            var error = getUrlParameter('error');
+            if (error) {
+                $('#login-error').show();
+                $('#login-error').html('<b>Error: </b>' + error);
+            }
+        });
+    </script>
 </head>
 <body>
 
