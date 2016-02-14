@@ -4,10 +4,13 @@
     <title>Akimoto</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
-    <link href="./assets/css/base.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
     <link href="./assets/css/style.css" rel="stylesheet">
-    <script src="./assets/js/core.js"></script>
+    <script src="./assets/js/lib/jquery.js"></script>
+    <script src="./assets/js/lib/socket.js"></script>
+    <script src="./assets/js/lib/moment.js"></script>
+    <script src="./assets/js/lib/bakery.js"></script>
+    <script src="./assets/js/lib/nano.js"></script>
     <script src="./assets/js/client.js"></script>
 </head>
 <body>
@@ -15,34 +18,24 @@
     <div class="container">
         <div class="sidebar">
             <div class="ornament">
-                <h2>Akimoto</h2>
+                <h3>Lumios</h3>
             </div>
-            <br>
-            <span class="users-title">USERS</span>
+
             <div class="users">
                 <ul id="users"></ul>
             </div>
         </div>
 
         <div class="content">
-            <div class="header">
-                <div class="brand">#general</div>
-            </div>
-
-            <div class="error-bar">Error: </div>
-
-            <div class="client nano">
-                <div class="nano-content">
-
-                </div>
+            <div class="header">Akimoto <span class="toolbar"><a href="/logout">Sign Out</a></span></div>
+            <div class="status">Error: undefined</div>
+            <div class="messages"></div>
+            <div class="footer">
+                <form class="send" action="">
+                    <input class="input" type="text" autocomplete="off">
+                </form>
             </div>
         </div>
-    </div>
-
-    <div class="footer">
-        <form id="chat-form" action="">
-            <input id="input-chatmsg" type="text" autocomplete="off">
-        </form>
     </div>
 
 </body>

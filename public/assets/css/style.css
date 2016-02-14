@@ -1,25 +1,16 @@
-* {
-    box-sizing: border-box;
-}
+@import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css);
 
-html,
-body {
-    height: 100%;
-}
+html, body { height: 100%; }
 
 body {
     margin: 0;
     padding: 0;
-    font-size: 16px;
-    font-family: 'Roboto', 'Helvetica Neue', 'ヒラギノ角ゴ Pro W3', '游ゴシック', YuGothic, Helvetica, Arial;
-    font-weight: 400;
     color: #444;
+    font-size: 18px;
+    line-height: 18px;
+    font-weight: 400;
+    font-family: 'Roboto', 'Noto Sans JP', sans-serif;
     overflow: hidden;
-}
-
-a {
-    text-decoration: none;
-    color: #3aa3e3;
 }
 
 .bold {
@@ -34,28 +25,9 @@ a {
     float: right;
 }
 
-
-/*
-// Core Elements
-*/
-
-.overlay {
-    position: absolute;
-    z-index: 50;
-    height: 100%;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.75);
-}
-
-.header {
-    position: fixed;
-    z-index: 20;
-    top: 0;
-    font-size: 18px;
-    background: #fff;
-    width: 100%;
-    padding: 10px 16px;
-    border-bottom: 2px solid #ddd;
+a {
+    text-decoration: none;
+    color: #3AA3E3;
 }
 
 .container {
@@ -63,180 +35,115 @@ a {
     display: flex;
 }
 
-.sidebar {
-    padding: 8px 12px;
-    width: 220px;
-    height: 100%;
-    background: #333;
-    color: white;
-}
-
-@media (max-width: 680px) {
-    .sidebar { display: none; }
-}
-
-.content {
-    padding: 43px 0;
+.container .content {
     flex-grow: 1;
-    overflow: scroll;
+    width: calc(100% - 220px);
+    padding: 40px 0 60px;
+    font-size: 16px;
 }
 
 @media (max-width: 680px) {
-    .content .error-bar { padding: 8px 13px !important; }
+    .container .content .header { width: calc(100% - 30px) !important; }
 }
 
-.content .error-bar {
+.container .content .header {
+    background: #FFF;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    width: calc(100% - 268px);
+    padding: 10px 16px;
+    border-bottom: 2px solid #DDD;
+}
+
+.container .content .header .toolbar {
+    float: right;
+}
+
+@media (max-width: 680px) {
+    .container .content .status { width: 100% !important; }
+}
+
+.container .content .status {
     display: none;
     position: fixed;
+    top: 40px;
     padding: 8px 13px;
-    z-index: 21;
-    width: 100%;
-    padding-right: 180px;
+    z-index: 20;
+    width: calc(100% - 220px);
     text-align: center;
     background: #E93F3C;
     font-size: 16px;
     color: #fff;
 }
 
-.client {
-    /*padding-top: 50px;*/
-    padding-bottom: 22px;
+.container .content .messages {
     height: 100%;
+    overflow: scroll;
+    overflow-x: hidden;
 }
 
-
-/*
-// Chat Display
-*/
-
-.chat-block {
+.container .content .messages .message {
+    width: calc(100% - 10px);
     position: relative;
-    z-index: 0;
-    padding: 8px 16px;
-    background-color: #fff;
+    padding: 5px;
 }
 
-.chat-block:hover {
-    background-color: #fafafa;
+.container .content .messages .message:hover {
+    background: #FAFAFA;
 }
 
-.chat-block .chat-icon {
-    width: 32px;
-    height: 32px;
-    float: left;
-    display: inline-block;
-    margin: 3px 10px 0 0;
+.container .content .messages .message .msg-gutter {
+    position: absolute;
+    padding-left: 8px;
+    width: 36px;
 }
 
-.chat-block .chat-icon img {
+.container .content .messages .message .msg-gutter img {
     border-radius: 4px;
 }
 
-.chat-block #chat-ts {
-    margin-left: 8px;
-    font-size: 12px;
-
-    color: #aaa;
-    cursor: pointer;
+.container .content .messages .message .msg-gutter .chat-time {
+    color: #999;
+    font-size: 11px;
 }
 
-.chat-block #chat-ts:hover {
-    text-decoration: underline;
+.container .content .messages .message .msg-content {
+    padding-top: 1px;
+    margin-left: 54px;
+    display: inline-block;
 }
 
-.chat-block #chat-user {
+.container .content .messages .message .msg-content .chat-user {
+    color: #333;
     font-weight: bold;
 }
 
-.chat-block #chat-msg {
-    display: block;
-}
-
-
-/*
-// Status
-*/
-
-#status {
-    cursor: pointer;
-    padding: 1px;
-}
-
-.ornament h2 {
-    margin: 0;
-    font-weight: lighter;
-}
-
-.users ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    margin-bottom: 5px;
-    color: #DDD;
-}
-
-.users li {
-    margin: 4px 0;
-}
-
-.users li #user {
-    padding-left: 8px;
-}
-
-.users li .presence-icon {
+.container .content .messages .message .msg-content .chat-time {
+    color: #999;
     font-size: 12px;
-    font-weight: bold;
+    padding-left: 7px;
 }
 
-.users #user.user-active {
-    color: #000;
+.container .content .messages .message .chat-msg {
+    padding-top: 2px;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
-.users #user.user-inactive {
-    color: #ddd;
+.container .content .messages .message.inline .chat-time {
+    visibility: hidden;
 }
 
-
-/*
-// Chat Input
-*/
-
-@media (min-width: 680px) {
-    .footer {
-        padding-left: 220px;
-    }
+.container .content .messages .message.inline:hover .chat-time {
+    visibility: visible;
 }
 
-.footer {
-    position: fixed;
-    z-index: 20;
-    bottom: 0;
-    width: 100%;
+.container .content .messages .message.inline .chat-msg {
+    padding-top: 0;
 }
 
-.footer form {
-    padding: 10px;
-    background: #fff;
-}
-
-.footer form #input-chatmsg {
-    margin: 0 auto;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    padding: 12px;
-    width: 100%;
-}
-
-.footer form #input-chatmsg:focus {
-    border-color: #cdcdcd;
-    outline: none;
-}
-
-/*
-// Emoji Styles
-*/
-
-.emoji-sizer {
+.container .content .messages .message .emoji-sizer {
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -244,7 +151,7 @@ a {
     font-size: 22px;
 }
 
-.emoji {
+.container .content .messages .message .emoji {
     display: inline-block;
     text-indent: -9999px;
     width: 100%;
@@ -252,4 +159,215 @@ a {
     background: url(../img/sheet-google-64.png);
     background-size: 4100%;
     cursor: text;
+}
+
+@media (max-width: 680px) {
+    .container .content .footer { width: calc(100% - 48px) !important; }
+}
+
+.container .content .footer {
+    position: fixed;
+    z-index: 20;
+    bottom: 0;
+    width: calc(100% - 284px);
+    background: #FFF;
+    padding: 2px 10px 10px;
+}
+
+.container .content .footer form .input {
+    font: inherit;
+    margin: 0 auto;
+    background: #FFF;
+    border: 2px solid #DDD;
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+}
+
+.container .content .footer form .input:focus {
+    border-color: #CDCDCD;
+    outline: none;
+}
+
+@media (max-width: 680px) {
+    .container .sidebar { display: none !important; }
+}
+
+.container .sidebar {
+    display: block;
+    width: 220px;
+    height: 100%;
+    padding: 8px;
+    min-width: 220px;
+    max-width: 220px;
+    background: #333333;
+    color: #FFF;
+}
+
+.container .sidebar .ornament h3 {
+    font-weight: 400;
+    padding-top: 3px;
+    margin: 0;
+}
+
+.container .sidebar .users ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #DDD;
+}
+
+.container .sidebar .users ul li {
+    margin: 4px 0;
+}
+
+.container .sidebar .users ul li #users {
+    padding-left: 8px;
+}
+
+.container .sidebar .users ul li #users.user-active {
+    color: #000;
+}
+
+.container .sidebar .users ul li #users.user-inactive {
+    color: #DDD;
+}
+
+.container .sidebar .users ul li .presence-icon {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.login {
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    position: absolute;
+    text-align: center;
+    font-size: 16px;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    min-width: 320px;
+}
+
+.login .login-title {
+    margin-top: 0;
+}
+
+.login #login-error {
+    display: none;
+    color: #E65757;
+    margin-bottom: 10px;
+}
+
+.login .auth-input {
+    font: inherit;
+    display: block;
+    margin-top: 5px;
+    border: 2px solid #DDD;
+    border-radius: 5px;
+    padding: 12px;
+    width: 310px;
+}
+
+.login .auth-input:focus {
+    outline: none;
+}
+
+.login .auth-submit {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font: inherit;
+    display: block;
+    cursor: pointer;
+    margin-top: 5px;
+    background: #43CC71;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 8pt 18pt;
+}
+
+.login .auth-submit:focus {
+    outline: none;
+}
+
+.login .login-tools {
+    text-align: right;
+    margin-top: 6px;
+}
+
+.login .login-tools a {
+    display: block;
+}
+
+.login .login-tools a:first-child {
+    margin-bottom: 4px;
+}
+
+.register {
+    padding: 45px 0;
+    width: 350px;
+}
+
+.register h4 {
+    text-align: left;
+    margin-bottom: 4px;
+    padding-left: 2px;
+}
+
+.register .register-title {
+    margin-top: 0;
+}
+
+.register .register-message {
+    text-align: center;
+}
+
+.register #register-error {
+    display: none;
+    color: #E65757;
+    margin-bottom: 10px;
+}
+
+.register .auth-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    margin-top: 5px;
+    border: 2px solid #DDD;
+    border-radius: 5px;
+    padding: 12px;
+    width: 100%;
+}
+
+.register .auth-input:focus {
+    outline: none;
+}
+
+.register .auth-submit {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    margin-top: 5px;
+    background: #43CC71;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 8pt 18pt;
+}
+
+.register .auth-submit:focus {
+    outline: none;
+}
+
+.register .auth-register {
+    margin-top: 5px;
+    padding: 8pt 0;
 }
