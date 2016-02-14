@@ -1,17 +1,18 @@
 $(function() {
     var socket = io.connect();
-    var username, token, connected;
-
     var cookie_user = $.cookie('user');
     var cookie_token = $.cookie('token');
 
-    var $client = $('.nano-content');
-    var $chat_form = $('#chat-form');
-    var $chat_box = $('#input-chatmsg');
-    var $error_bar = $('.error-bar');
-    var $online_users = $('#users');
+    var $client = $('.messages');
+    var $chat_form = $('.send');
+    var $chat_box = $('.input');
+    var $error_bar = $('.status');
+    var $online_users = $('#user');
+    var username, token, connected;
+    var last_ts, last_user;
     var red = '#e65757';
-    var scroll = false;
+    var scrolled = false;
+    var active = false;
 
     function time() {
         return moment().format('X');
@@ -23,56 +24,29 @@ $(function() {
         }
     };
 
-    $.preload('./assets/img/sheet-google-64.png');
+    $(window).focus(function() {
+        active = true;
+    });
 
-    /*var $height = $(window).height() - $('.footer').height() - $('.header').height() - 22;
-    $('.nano').nanoScroller({ alwaysVisible: true });
-    $('.nano').height($height);
-    $(window).resize(function(){
-        $('.nano').height($height);
+    $(window).blur(function() {
+        active = false;
+    });
+
+    /*$(window).scroll(function() {
+        if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+            scrolled = true;
+            console.log(true);
+        } else {
+            scrolled = false;
+            console.log(false);
+        }
     });*/
 
-    socket.on('connect', function() {
-        error('remove');
-    });
-    socket.on('reconnect', function() {
-        error('remove');
-    });
-    socket.on('error', function() {
-        error('error', 'Unknown Error');
-    });
-    socket.on('timeout', function() {
-        error('error', 'Connection Timed Out');
-    });
-    socket.on('disconnect', function() {
-        error('error', 'Disconnected from Server, retrying...');
-    });
-    socket.on('connect_timeout', function() {
-        error('error', 'Couldn\'t Reconnect');
-    });
-    socket.on('reconnect_error', function() {
-        error('error', 'Unable to Reconnect, retrying...');
-    });
-    socket.on('reconnect_failed', function() {
-        error('error', 'Unable to Reconnect. Please refresh!');
-    });
-
-    function post(data) {
-        var chat_block = $('<div class="chat-block" data-ts="' + data.ts + '"></div>');
-        var chat_icon = $('<div class="chat-icon"><img src="https://www.gravatar.com/avatar/' + data.icon + '?s=256" width="32px"></div>');
-        var chat_user = $('<span id="chat-user"></span').text(data.username);
-        var chat_time = $('<span id="chat-ts"></span>').text(moment.unix(data.ts).format('hh:mma'));
-        var chat_msg = $('<span id="chat-msg"></span>').html(markdown(emojalias(data.message)));
-
-        emoji(chat_msg);
-
-        chat_block.append(chat_icon);
-        chat_block.append(chat_user);
-        chat_block.append(chat_time);
-        chat_block.append(chat_msg);
-        $client.append(chat_block);
-
-        $('.content').scrollTop($('.content').prop('scrollHeight'));
+    function checkScroll() {
+        scrolled = false;
+        $('.content').bind('scrollend', function(e){
+            scrolled = true;
+        });
     }
 
     function markdown(text) {
@@ -127,13 +101,39 @@ $(function() {
             ['<*3', ':sparkling_heart:'],
             ['</3', ':broken_heart:']
         ];
+
         $.each(aliases, function(i) {
             text = text.replace(aliases[i][0], aliases[i][1]);
         });
+
         return text;
     }
 
+    function getPermission() {
+        if (!('Notification' in window)) {
+            alert('Your browser doesn\'t support HTML5 Notifications. Notifications will be disabled.');
+            return;
+        }
 
+        Notification.requestPermission(function(permission) {
+            if (Notification.permission === 'granted') { }
+        });
+    }
+
+    function newNotification(data) {
+        if (Notification.permission === 'granted') {
+            var notification = new Notification('Akimoto', {
+                body: data.username + ': ' + data.message,
+                icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256'
+            });
+
+            setTimeout(function() {
+                notification.close();
+            }, 5000);
+        }
+
+        else if (Notification.permission !== 'denied') getPermission();
+    }
 
     function error(type, message) {
         if (type === 'error') {
@@ -144,6 +144,73 @@ $(function() {
             $error_bar.slideUp('fast');
         }
     }
+
+    function post(data) {
+        var chat_div, chat_inline, chat_gutter, chat_image, chat_content, chat_user, chat_time, chat_msg;
+
+        chat_div = $('<div class="message" data-ts="' + data.ts + '"></div>');
+        chat_inline = $('<div class="message inline" data-ts="' + data.ts + '"></div>');
+        chat_gutter = $('<div class="msg-gutter"></div>');
+        chat_image = $('<img src="https://www.gravatar.com/avatar/' + data.icon + '?s=256" width="38px">');
+        chat_content = $('<div class="msg-content"></div>');
+        chat_user = $('<span class="chat-user"></span>').text(data.username);
+        chat_time = $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
+        chat_msg = $('<div class="chat-msg"></div>').html(markdown(emojalias(data.message)));
+
+        if (last_ts > (data.ts - 300) && last_user == data.username) {
+            chat_gutter.append(chat_time);
+            chat_content.append(chat_msg);
+            chat_inline.append(chat_gutter);
+            chat_inline.append(chat_content);
+            $client.append(chat_inline);
+        } else {
+            chat_gutter.append(chat_image);
+            chat_content.append(chat_user);
+            chat_content.append(chat_time);
+            chat_content.append(chat_msg);
+            chat_div.append(chat_gutter);
+            chat_div.append(chat_content);
+            $client.append(chat_div);
+        }
+
+        // emoji
+        emoji(chat_msg);
+
+        last_user = data.username;
+        last_ts = data.ts;
+
+        if (!active) newNotification(data);
+        $('.content').scrollTop($('.content').prop('scrollHeight'));
+    }
+
+    $.preload('./assets/img/sheet-google-64.png');
+
+    getPermission();
+
+    socket.on('connect', function() {
+        error('remove');
+    });
+    socket.on('reconnect', function() {
+        error('remove');
+    });
+    socket.on('error', function() {
+        error('error', 'Unknown Error');
+    });
+    socket.on('timeout', function() {
+        error('error', 'Connection Timed Out');
+    });
+    socket.on('disconnect', function() {
+        error('error', 'Disconnected from Server, retrying...');
+    });
+    socket.on('connect_timeout', function() {
+        error('error', 'Couldn\'t Reconnect');
+    });
+    socket.on('reconnect_error', function() {
+        error('error', 'Unable to Reconnect, retrying...');
+    });
+    socket.on('reconnect_failed', function() {
+        error('error', 'Unable to Reconnect. Please refresh!');
+    });
 
     if (cookie_user && cookie_token) {
         socket.emit('auth.user', {
