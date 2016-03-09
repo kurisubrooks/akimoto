@@ -3,40 +3,60 @@
 <head>
     <title>Akimoto</title>
     <meta charset="utf-8">
+    <meta name="theme-color" content="#333333">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
-    <link href="./assets/css/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,400italic,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="./assets/css/style.css" rel="stylesheet" type="text/css">
     <script src="./assets/js/lib/jquery.js"></script>
     <script src="./assets/js/lib/socket.js"></script>
     <script src="./assets/js/lib/moment.js"></script>
+    <script src="./assets/js/lib/lodash.js"></script>
     <script src="./assets/js/lib/bakery.js"></script>
     <script src="./assets/js/lib/nano.js"></script>
     <script src="./assets/js/client.js"></script>
 </head>
 <body>
 
+    <div class="overlay">
+        <div class="shrink">
+            <!--<h2>Loading...</h2>-->
+            <div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="sidebar">
-            <div class="ornament">
-                <h3>Lumios</h3>
-            </div>
-
             <div class="users">
+                <h3>Users</h3>
                 <ul id="users"></ul>
             </div>
         </div>
 
         <div class="content">
-            <div class="header">Akimoto <span class="toolbar"><a href="/logout">Sign Out</a></span></div>
-            <div class="status">Error: undefined</div>
-            <div class="messages"></div>
+            <div class="header">
+                <span class="brand">Akimoto</span>
+                <span class="toolbar"><a href="/logout">Sign Out</a></span>
+            </div>
+            <div class="status"></div>
+            <div class="messages nano">
+                <div class="chat nano-content"></div>
+            </div>
             <div class="footer">
                 <form class="send" action="">
-                    <input class="input" type="text" autocomplete="off">
+                    <input class="input" type="text" autocomplete="off" autofocus>
                 </form>
             </div>
         </div>
     </div>
+
+
+    <link href="https://fonts.googleapis.com/earlyaccess/notosansjp.css" rel="stylesheet" type="text/css">
 
 </body>
 </html>
