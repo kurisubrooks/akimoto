@@ -1,138 +1,55 @@
-$(function() {
+$(document).ready(function() {
     var socket = io.connect();
     var cookie_user = $.cookie('user');
     var cookie_token = $.cookie('token');
 
-    var $client = $('.messages');
+    var $client = $('.chat');
+    var $nano = $('.nano');
     var $chat_form = $('.send');
     var $chat_box = $('.input');
     var $error_bar = $('.status');
-    var $online_users = $('#user');
+    var $online_users = $('#users');
+    var $height = $('.content').height() - 5;
+    //var $height = $(window).height() - $('.footer').height() - $('.header').height() - 22;
     var username, token, connected;
     var last_ts, last_user;
     var red = '#e65757';
-    var scrolled = false;
+    var scrolled = true;
     var active = false;
 
-    function time() {
-        return moment().format('X');
-    }
-
     $.preload = function() {
-        for (var i = 0; i < arguments.length; i++) {
-            $('<img />').attr('src', arguments[i]);
-        }
+        for (var i = 0; i < arguments.length; i++) { $('<img />').attr('src', arguments[i]); }
     };
-
-    $(window).focus(function() {
-        active = true;
-    });
-
-    $(window).blur(function() {
-        active = false;
-    });
-
-    /*$(window).scroll(function() {
-        if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+    
+    function time() { return moment().format('X'); }
+    
+    $client.bind('scroll', checkScroll);
+    $(window).resize(function(){ $nano.height($height); });
+    $(window).focus(function() { active = true; });
+    $(window).blur(function() { active = false; });
+    $nano.nanoScroller({ alwaysVisible: true, scroll: 'bottom' });
+    $nano.on('update', function() { checkScroll(); });
+    $nano.height($height);
+    
+    function checkScroll() {
+        if ($client[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
             scrolled = true;
-            console.log(true);
+            console.info('scroll', true);
         } else {
             scrolled = false;
-            console.log(false);
+            console.info('scroll', false);
         }
-    });*/
-
-    function checkScroll() {
-        scrolled = false;
-        $('.content').bind('scrollend', function(e){
-            scrolled = true;
-        });
-    }
-
-    function markdown(text) {
-        var markdown = [
-            [/(^|\s+)\[([^\[]+)\]\(([^\)]+)\)(\s+|$)/g, ' <a href="$3">$2</a> '],
-            [/(^|\s+)(\*)(.*?)\2(\s+|$)/g, ' <strong>$3</strong> '],
-            [/(^|\s+)(\_)(.*?)\2(\s+|$)/g, ' <em>$3</em> '],
-            [/(^|\s+)(\~)(.*?)\2(\s+|$)/g, ' <del>$3</del> '],
-            [/(^|\s+)(`)(.*?)\2(\s+|$)/g, ' <code>$3</code> ']
-        ];
-        $.each(markdown, function(i) {
-            text = text.replace(markdown[i][0], markdown[i][1]);
-        });
-        return text;
-    }
-
-    function emoji(input) {
-        $.getJSON('./assets/js/emoji.json', function(data) {
-            var sheet_max = 40;
-            $.each(data, function(i) {
-                $(input).text(function() {
-                    var message = $(this).html();
-                    var sheet_xx = (data[i].sheet_x / sheet_max) * 100;
-                    var sheet_yy = (data[i].sheet_y / sheet_max) * 100;
-                    var short_name = ':' + data[i].short_name + ':';
-                    var output = '<span class="emoji-sizer"><span class="emoji" style="background-position:' + sheet_xx + '% ' + sheet_yy + '%;">' + short_name + '</span></span>';
-                    $(this).html(message.replace(short_name, output));
-                });
-            });
-        });
-    }
-
-    function emojalias(text) {
-        var aliases = [
-            [':)', ':slightly_smiling_face:'],
-            [':(', ':disappointed:'],
-            [':D', ':smile:'],
-            ['D:', ':anguished:'],
-            [';)', ':wink:'],
-            [':3', ':smiley_cat:'],
-            [':p', ':stuck_out_tongue:'],
-            [':P', ':stuck_out_tongue:'],
-            [':o', ':open_mouth:'],
-            [':O', ':open_mouth:'],
-            [':\'(', ':cry:'],
-            [':l', ':confused:'],
-            [':|', ':neutral_face:'],
-            [':/', ':confused:'],
-            ['>:(', ':angry:'],
-            ['>:)', ':smiling_imp:'],
-            ['<3', ':heart:'],
-            ['<*3', ':sparkling_heart:'],
-            ['</3', ':broken_heart:']
-        ];
-
-        $.each(aliases, function(i) {
-            text = text.replace(aliases[i][0], aliases[i][1]);
-        });
-
-        return text;
-    }
-
-    function getPermission() {
-        if (!('Notification' in window)) {
-            alert('Your browser doesn\'t support HTML5 Notifications. Notifications will be disabled.');
-            return;
-        }
-
-        Notification.requestPermission(function(permission) {
-            if (Notification.permission === 'granted') { }
-        });
     }
 
     function newNotification(data) {
-        if (Notification.permission === 'granted') {
-            var notification = new Notification('Akimoto', {
-                body: data.username + ': ' + data.message,
-                icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256'
-            });
+        var notification = new Notification('Akimoto', {
+            body: data.username + ': ' + data.message,
+            icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256'
+        });
 
-            setTimeout(function() {
-                notification.close();
-            }, 5000);
-        }
-
-        else if (Notification.permission !== 'denied') getPermission();
+        setTimeout(function() {
+            notification.close();
+        }, 5000);
     }
 
     function error(type, message) {
@@ -156,7 +73,15 @@ $(function() {
         chat_user = $('<span class="chat-user"></span>').text(data.username);
         chat_time = $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
         chat_msg = $('<div class="chat-msg"></div>').html(markdown(emojalias(data.message)));
-
+        emoji(chat_msg);
+        
+        checkScroll();
+        $nano.nanoScroller();
+        
+        if (!active) newNotification(data);
+        if (scrolled) {
+            $client.scrollTop($client.height() + $client.prop('scrollHeight'));
+        }
         if (last_ts > (data.ts - 300) && last_user == data.username) {
             chat_gutter.append(chat_time);
             chat_content.append(chat_msg);
@@ -172,26 +97,19 @@ $(function() {
             chat_div.append(chat_content);
             $client.append(chat_div);
         }
-
-        // emoji
-        emoji(chat_msg);
-
+        
         last_user = data.username;
         last_ts = data.ts;
-
-        if (!active) newNotification(data);
-        $('.content').scrollTop($('.content').prop('scrollHeight'));
     }
 
     $.preload('./assets/img/sheet-google-64.png');
-
-    getPermission();
 
     socket.on('connect', function() {
         error('remove');
     });
     socket.on('reconnect', function() {
         error('remove');
+        location.reload();
     });
     socket.on('error', function() {
         error('error', 'Unknown Error');
@@ -246,8 +164,8 @@ $(function() {
         console.log(data.presence);
         var users = [];
         $.each(data.presence, function(key, value) {
-            if (value) users.push('<li><i class="fa fw-fw fa-circle presence-icon"></i><span id="user">' + key + '</span></li>');
-            else users.push('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i><span id="user">' + key + '</span></li>');
+            if (value) users.push('<li><i class="fa fw-fw fa-circle presence-icon"></i> <span id="user">' + key + '</span></li>');
+            else users.push('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i> <span id="user">' + key + '</span></li>');
         });
         $online_users.html(users.join(''));
     });
@@ -262,7 +180,7 @@ $(function() {
     });
 
     $chat_form.submit(function() {
-        if ($chat_box.val() === '' || $chat_box.val() === ' ') return false;
+        if (!$.trim($chat_box.val())) return false;
         else {
             socket.emit('chat.post', {
                 "ok": true,
@@ -274,4 +192,76 @@ $(function() {
             return false;
         }
     });
+    
+    function markdown(text) {
+        var markdown = [
+            [/(^|\s+)\[([^\[]+)\]\(([^\)]+)\)(\s+|$)/g, ' <a href="$3">$2</a> '],
+            [/(^|\s+)(\*)(.*?)\2(\s+|$)/g, ' <strong>$3</strong> '],
+            [/(^|\s+)(\_)(.*?)\2(\s+|$)/g, ' <em>$3</em> '],
+            [/(^|\s+)(\~)(.*?)\2(\s+|$)/g, ' <del>$3</del> '],
+            [/(^|\s+)(`)(.*?)\2(\s+|$)/g, ' <code>$3</code> '],
+            [/(^|\s+)(```)(.*?)\2(\s+|$)/g, ' <pre>$3</pre> ']
+        ];
+        $.each(markdown, function(i) {
+            text = text.replace(markdown[i][0], markdown[i][1]);
+        });
+        return text;
+    }
+
+    function emoji(input) {
+        $.getJSON('./assets/js/emoji.json', function(data) {
+            var sheet_max = 40;
+            $.each(data, function(i) {
+                $(input).text(function() {
+                    var message = $(this).html();
+                    var sheet_xx = (data[i].sheet_x / sheet_max) * 100;
+                    var sheet_yy = (data[i].sheet_y / sheet_max) * 100;
+                    var short_name = ':' + data[i].short_name + ':';
+                    var output = '<span class="emoji-sizer"><span class="emoji" style="background-position:' + sheet_xx + '% ' + sheet_yy + '%;" data-emoji="' + short_name + '"></span></span>';
+                    $(this).html(message.replace(short_name, output));
+                });
+            });
+        });
+    }
+
+    function emojalias(text) {
+        var aliases = [
+            [':)', ':slightly_smiling_face:'],
+            [':(', ':disappointed:'],
+            [':D', ':smile:'],
+            ['D:', ':anguished:'],
+            [';)', ':wink:'],
+            [':3', ':smiley_cat:'],
+            [':p', ':stuck_out_tongue:'],
+            [':P', ':stuck_out_tongue:'],
+            [':o', ':open_mouth:'],
+            [':O', ':open_mouth:'],
+            [':\'(', ':cry:'],
+            [':l', ':confused:'],
+            [':|', ':neutral_face:'],
+            [':/', ':confused:'],
+            ['>:(', ':angry:'],
+            ['>:)', ':smiling_imp:'],
+            ['<3', ':heart:'],
+            ['<*3', ':sparkling_heart:'],
+            ['</3', ':broken_heart:']
+        ];
+
+        $.each(aliases, function(i) {
+            text = text.replace(aliases[i][0], aliases[i][1]);
+        });
+
+        return text;
+    }
+});
+
+$(window).load(function() {
+    $('.overlay').fadeOut('fast');
+    
+    if (!('Notification' in window)) {
+        alert('Notifications could not be enabled. Update your browser!');
+        return;
+    } else if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+    }
 });
