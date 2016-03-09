@@ -5,20 +5,23 @@ const io = require('socket.io')(http);
 const postman = require('body-parser');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-
+const morgan = require('morgan');
 const crimson = require('crimson');
 const moment = require('moment');
 const crypto = require('crypto');
 const uuid = require('node-uuid');
+const path = require('path');
+const fs = require('fs');
 const _ = require('lodash');
-
 const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
 const ip = require('ip');
 const port = 3000;
 
-app.use('/assets', express.static(__dirname + '/public/assets'));
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+app.use('/data', express.static(path.join(__dirname, 'data')));
+app.use(morgan('short'));
 app.use(cookieParser(keychain.session));
 app.use(postman.json());
 app.use(postman.urlencoded({extended: true}));
@@ -49,8 +52,7 @@ function cache() {
             online: false
         };
     });
-}
-cache();
+} cache();
 
 function presence() {
     var toReturn = {};
@@ -66,6 +68,16 @@ function safe(input) {
     input.replace('<', '&lt;');
     input.replace('>', '&gt;');
     return input;
+}
+
+function save(type, ts, user, msg) {
+    var file = path.join(__dirname, 'data', 'chat.json');
+    var json = require(file);
+    var object = [{ "type": type, "ts": ts, "user": user, "message": msg }];
+    json.chat.push(object);
+    fs.writeFile(file, JSON.stringify(json, null, 4), (err) => {
+        if (err) crimson.fatal(err);
+    });
 }
 
 app.get('/', (req, res) => {
@@ -107,7 +119,7 @@ app.all('/api/auth.login', (req, res) => {
     var username = data.username.toLowerCase();
     var password = data.password;
     var hash = auth.hash(username, password);
-    crimson.debug('auth.login: {"ok":' + hash.ok + ',"username":' + data.username + '}');
+    crimson.debug('api/auth.login: ' + JSON.stringify({ok:hash.ok,ip:req.ip||req.connection.remoteAddress,username:data.username}));
 
     if (hash.ok) {
         session.user = hash.username;
@@ -128,9 +140,8 @@ app.post('/api/auth.register', (req, res) => {
 app.all('/api/chat.post', (req, res) => {
     var session = req.session;
     var data = (req.query.username) ? req.query : req.body;
-    crimson.debug('chat.post: ' + JSON.stringify(data));
 
-    if (data.token && data.text) {
+    if (data.token && data.text || data.html) {
         if (bots[data.token]) {
             var object = {
                 "ok": true,
@@ -139,30 +150,33 @@ app.all('/api/chat.post', (req, res) => {
                 "icon": bots[data.token].icon,
                 "message": safe(data.text)
             };
+            crimson.debug('api/chat.post: ' + JSON.stringify({ok:true,ts:time(),username:bots[data.token].username,message:safe(data.text)}));
+            save('message', time(), bots[data.token].uuid, safe(data.text));
 
-            res.send(object);
+            res.json(object);
             io.emit('chat.post', object);
         } else {
-            res.send({"ok": false, "ts": time(), "reason": "Bot Doesn\'t Exist"});
+            var error = 'User/Bot Doesn\'t exist';
+            res.json({"ok": false, "ts": time(), "reason": error});
+            crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
         }
     } else if (!data.token) {
-        res.send({"ok": false, "ts": time(), "reason": "Token Required"});
-    } else if (!data.text) {
-        res.send({"ok": false, "ts": time(), "reason": "Text Required"});
+        var error = 'Missing field: Token';
+        res.json({"ok": false, "ts": time(), "reason": error});
+        crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
+    } else if (!data.text || !data.html) {
+        var error = 'Missing field: Text/HTML';
+        res.json({"ok": false, "ts": time(), "reason": error});
+        crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
     }
 
-    // get token
-    /*
-    {
-        "token": "",
-        "text": "",
-        "attachments": {
-            "title": "",
-            "text": "",
-            "image": ""
-        }
-    }
-    */
+    // { "token": "", "text": "", "html": { "title": "", "text": "", "image": "" } }
+});
+
+app.all('/api/chat.delete', (req, res) => {
+    var session = req.session;
+    var data = (req.query.username) ? req.query : req.body;
+    res.json({"ok":false})
 });
 
 io.on('connection', (socket) => {
@@ -197,10 +211,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat.post', (data) => {
+        var timestamp = time();
         crimson.info(socket.username + ': ' + data.message);
+        save('message', timestamp, users[socket.token].uuid, data.message);
         io.emit('chat.post', {
             "ok": true,
-            "ts": time(),
+            "ts": timestamp,
             "username": socket.username,
             "icon": users[socket.token].icon,
             "message": safe(data.message)
