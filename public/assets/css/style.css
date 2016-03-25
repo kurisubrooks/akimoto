@@ -9,6 +9,7 @@ body {
     font-weight: 400;
     font-family: 'Lato', 'Noto Sans JP', sans-serif;
     overflow: hidden;
+    vertical-align: middle;
 }
 
 .bold {
@@ -207,7 +208,7 @@ a {
 }
 
 .container .content .messages .message .msg-gutter img {
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .container .content .messages .message .msg-gutter .chat-time {
@@ -230,13 +231,18 @@ a {
 }
 
 .container .content .messages .message .msg-content .chat-time {
+    visibility: hidden;
     color: #AAA;
     font-size: 11px;
     padding-left: 5px;
     cursor: pointer;
 }
 
-.container .content .messages .message .msg-content .chat-time:hover {
+.container .content .messages .message:hover .chat-time {
+    visibility: visible;
+}
+
+.container .content .messages .message .chat-time:hover {
     text-decoration: underline;
 }
 
@@ -250,12 +256,16 @@ a {
     cursor: pointer;
 }
 
+.container .content .messages .message.inline:hover .chat-time {
+    visibility: visible;
+}
+
 .container .content .messages .message.inline .chat-time:hover {
     text-decoration: underline;
 }
 
-.container .content .messages .message.inline:hover .chat-time {
-    visibility: visible;
+.container .content .messages .message.inline .chat-time:hover {
+    text-decoration: underline;
 }
 
 .container .content .messages .message.inline .chat-msg {
