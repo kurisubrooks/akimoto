@@ -18,7 +18,7 @@ exports.new_user = (data) => {
         var email = data.username;
         var pass = data.password;
         var icon = crypto.createHash('md5').update(email).digest('hex');
-        var token = 'au-' + crypto.randomBytes(12).toString('hex');
+        var token = 'u' + crypto.randomBytes(12).toString('hex');
         var salt = crypto.randomBytes(24).toString('base64');
         var hash = crypto.createHash('sha256').update(pass + salt).digest('hex');
 
