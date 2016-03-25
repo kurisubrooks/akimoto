@@ -12,11 +12,12 @@ const crypto = require('crypto');
 const uuid = require('node-uuid');
 const path = require('path');
 const fs = require('fs');
+const ip = require('ip');
 const _ = require('lodash');
+
 const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
-const ip = require('ip');
 const port = 3000;
 
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
@@ -28,23 +29,12 @@ app.use(postman.urlencoded({extended: true}));
 app.use(session({secret: keychain.session}));
 
 var users = {};
-var bots = {};
+var count = 0;
 
 function cache() {
     _.forEach(database.users, (v, k) => {
         if (typeof v !== "object") return;
         users[v.token] = {
-            uuid: v.uuid,
-            username: v.username,
-            token: v.token,
-            icon: v.icon,
-            online: false
-        };
-    });
-
-    _.forEach(database.bots, (v, k) => {
-        if (typeof v !== "object") return;
-        bots[v.token] = {
             uuid: v.uuid,
             username: v.username,
             token: v.token,
@@ -142,16 +132,16 @@ app.all('/api/chat.post', (req, res) => {
     var data = (req.query.username) ? req.query : req.body;
 
     if (data.token && data.text || data.html) {
-        if (bots[data.token]) {
+        if (users[data.token]) {
             var object = {
                 "ok": true,
                 "ts": time(),
-                "username": bots[data.token].username,
-                "icon": bots[data.token].icon,
+                "username": users[data.token].username,
+                "icon": users[data.token].icon,
                 "message": safe(data.text)
             };
-            crimson.debug('api/chat.post: ' + JSON.stringify({ok:true,ts:time(),username:bots[data.token].username,message:safe(data.text)}));
-            save('message', time(), bots[data.token].uuid, safe(data.text));
+            crimson.debug('api/chat.post: ' + JSON.stringify({ok:true,ts:time(),username:users[data.token].username,message:safe(data.text)}));
+            save('message', time(), users[data.token].uuid, safe(data.text));
 
             res.json(object);
             io.emit('chat.post', object);
@@ -188,6 +178,7 @@ io.on('connection', (socket) => {
             socket.icon = users[socket.token].icon;
             users[socket.token].online = true;
             crimson.success(socket.username + ' is now active!');
+            ++count;
             socket.emit('user.auth', {
                 "ok": true,
                 "ts": time(),
@@ -197,7 +188,8 @@ io.on('connection', (socket) => {
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
-                "presence": presence()
+                "presence": presence(),
+                "count": count
             });
         } else {
             crimson.error(data);
@@ -227,10 +219,12 @@ io.on('connection', (socket) => {
         if (socket.username) {
             crimson.error(socket.username + ' is now away.');
             users[socket.token].online = false;
+            --count;
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
-                "presence": presence()
+                "presence": presence(),
+                "count": count
             });
         }
     });
