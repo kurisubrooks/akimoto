@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(function() {
     var socket = io.connect();
     var cookie_user = $.cookie('user');
     var cookie_token = $.cookie('token');
@@ -11,40 +11,42 @@ $(document).ready(function() {
     var $online_users = $('#users');
     var $height = $('.content').height() - 5;
     //var $height = $(window).height() - $('.footer').height() - $('.header').height() - 22;
-    var username, token, connected;
-    var last_ts, last_user;
+    var username, token, connected, last_ts, last_user;
     var red = '#e65757';
     var scrolled = true;
-    var active = false;
+    var active = true;
 
     $.preload = function() {
-        for (var i = 0; i < arguments.length; i++) { $('<img />').attr('src', arguments[i]); }
+        for (var i = 0; i < arguments.length; i++) $('<img />').attr('src', arguments[i]);
     };
     
     function time() { return moment().format('X'); }
     
-    $client.bind('scroll', checkScroll);
-    $(window).resize(function(){ $nano.height($height); });
+    $(window).resize(function() { init() });
     $(window).focus(function() { active = true; });
     $(window).blur(function() { active = false; });
-    $nano.nanoScroller({ alwaysVisible: true, scroll: 'bottom' });
-    $nano.on('update', function() { checkScroll(); });
-    $nano.height($height);
+
+    function reinit() {
+        $nano.nanoScroller({ destroy: true });
+        $nano.nanoScroller({ alwaysVisible: true, scroll: 'bottom' });
+        $nano.height($height);
+    }
     
     function checkScroll() {
         if ($client[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
             scrolled = true;
-            console.info('scroll', true);
+            return true;
         } else {
             scrolled = false;
-            console.info('scroll', false);
+            return false;
         }
     }
 
     function newNotification(data) {
         var notification = new Notification('Akimoto', {
             body: data.username + ': ' + data.message,
-            icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256'
+            icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256',
+            silent: true
         });
 
         setTimeout(function() {
@@ -63,25 +65,22 @@ $(document).ready(function() {
     }
 
     function post(data) {
-        var chat_div, chat_inline, chat_gutter, chat_image, chat_content, chat_user, chat_time, chat_msg;
-
-        chat_div = $('<div class="message" data-ts="' + data.ts + '"></div>');
-        chat_inline = $('<div class="message inline" data-ts="' + data.ts + '"></div>');
-        chat_gutter = $('<div class="msg-gutter"></div>');
-        chat_image = $('<img src="https://www.gravatar.com/avatar/' + data.icon + '?s=256" width="38px">');
-        chat_content = $('<div class="msg-content"></div>');
-        chat_user = $('<span class="chat-user"></span>').text(data.username);
-        chat_time = $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
-        chat_msg = $('<div class="chat-msg"></div>').html(markdown(emojalias(data.message)));
+        var chat_div =      $('<div class="message" data-ts="' + data.ts + '"></div>');
+        var chat_inline =   $('<div class="message inline" data-ts="' + data.ts + '"></div>');
+        var chat_gutter =   $('<div class="msg-gutter"></div>');
+        var chat_image =    $('<img src="https://www.gravatar.com/avatar/' + data.icon + '?s=256" width="38px">');
+        var chat_content =  $('<div class="msg-content"></div>');
+        var chat_user =     $('<span class="chat-user"></span>').text(data.username);
+        var chat_time =     $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
+        var chat_msg =      $('<div class="chat-msg"></div>').html(markdown(emojalias(data.message)));
         emoji(chat_msg);
         
-        checkScroll();
-        $nano.nanoScroller();
-        
-        if (!active) newNotification(data);
-        if (scrolled) {
-            $client.scrollTop($client.height() + $client.prop('scrollHeight'));
+        if (checkScroll() || !active) {
+            reinit();
+            window.scrollTo(0, $client.scrollHeight);
         }
+
+        if (!active) newNotification(data);
         if (last_ts > (data.ts - 300) && last_user == data.username) {
             chat_gutter.append(chat_time);
             chat_content.append(chat_msg);
@@ -98,8 +97,7 @@ $(document).ready(function() {
             $client.append(chat_div);
         }
         
-        last_user = data.username;
-        last_ts = data.ts;
+        last_user = data.username, last_ts = data.ts;
     }
 
     $.preload('./assets/img/sheet-google-64.png');
@@ -256,8 +254,10 @@ $(document).ready(function() {
 });
 
 $(window).load(function() {
-    $('.overlay').fadeOut('fast');
-    
+    setTimeout(function() {
+        $('.overlay').fadeOut('fast');
+    }, 1000);
+
     if (!('Notification' in window)) {
         alert('Notifications could not be enabled. Update your browser!');
         return;
