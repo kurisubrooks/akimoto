@@ -44,6 +44,7 @@ prompt.get(format, function (error, result) {
 
     var object = {
         "admin": false,
+        //"type": type,
         "uuid": id,
         "token": token,
         "username": user,
