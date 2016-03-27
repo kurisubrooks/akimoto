@@ -11,7 +11,39 @@ function time() {
     return moment().format('X');
 }
 
-exports.new_user = (data) => {
+exports.hash = (username, password) => {
+    var database = require(dbpath);
+    var user = username;
+    var pass = password;
+
+    if (!database.users[user]) return {
+        "ok": false,
+        "ts": time(),
+        "code": "ERR_USER_NOEXIST",
+        "reason": "User doesn\'t exist"
+    };
+
+    var salt = database.users[user].salt;
+    var hash = crypto.createHash('sha256').update(pass + salt).digest('hex');
+
+    if (database.users[user].password == hash) {
+        return {
+            "ok": true,
+            "ts": time(),
+            "username": user,
+            "token": database.users[user].token
+        };
+    } else {
+        return {
+            "ok": false,
+            "ts": time(),
+            "code": "ERR_PASSWD_INCORRECT",
+            "reason": "Incorrect Password"
+        };
+    }
+};
+
+/*exports.new_user = (data) => {
     if (data.username && data.email && data.password) {
         var database = require(dbpath);
         var user = data.username;
@@ -25,6 +57,7 @@ exports.new_user = (data) => {
         if (database.users[user]) return {
             "ok": false,
             "ts": time(),
+            "code": "ERR_USER_EXISTS",
             "reason": "User already exists"
         };
 
@@ -45,6 +78,7 @@ exports.new_user = (data) => {
             if (error) return {
                 "ok": false,
                 "ts": time(),
+                "code": "ERR_DATABASE_FAIL",
                 "reason": "Failed to write to database",
                 "message": error
             };
@@ -60,40 +94,11 @@ exports.new_user = (data) => {
     else return {
         "ok": false,
         "ts": time(),
+        "code": "ERR_MISSING_DETAILS",
         "reason": "Insufficient Details"
     };
-};
+};*/
 
-exports.hash = (username, password) => {
-    var database = require(dbpath);
-    var user = username;
-    var pass = password;
+/*exports.data = (token, get) => {
 
-    if (!database.users[user]) return {
-        "ok": false,
-        "ts": time(),
-        "reason": "User doesn\'t exist"
-    };
-
-    var salt = database.users[user].salt;
-    var hash = crypto.createHash('sha256').update(pass + salt).digest('hex');
-
-    if (database.users[user].password == hash) {
-        return {
-            "ok": true,
-            "ts": time(),
-            "username": user,
-            "token": database.users[user].token
-        };
-    } else {
-        return {
-            "ok": false,
-            "ts": time(),
-            "reason": "Incorrect Password"
-        };
-    }
-};
-
-exports.data = (token, get) => {
-
-};
+};*/
