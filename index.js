@@ -42,11 +42,12 @@ function cache() {
             online: false
         };
     });
-} cache();
+}
 
 function presence() {
     var toReturn = {};
-    _.map(users, (o) => toReturn[o.username] = o.online);
+    _.map(users, o => toReturn[o.username] = o.online);
+
     return toReturn;
 }
 
@@ -55,43 +56,44 @@ function time() {
 }
 
 function safe(input) {
-    input.replace('<', '&lt;');
-    input.replace('>', '&gt;');
-    return input;
+    var one = input.replace(/</g, '&lt;');
+    var two = one.replace(/>/g, '&gt;');
+
+    return two;
 }
 
 function save(type, ts, user, msg) {
     var file = path.join(__dirname, 'data', 'chat.json');
     var json = require(file);
     var object = [{ "type": type, "ts": ts, "user": user, "message": msg }];
+
     json.chat.push(object);
+
     fs.writeFile(file, JSON.stringify(json, null, 4), (err) => {
         if (err) crimson.fatal(err);
     });
 }
 
+/* // // //// // // */
+/* // HTTP Pages // */
+/* // // //// // // */
+
 app.get('/', (req, res) => {
     var cookie = req.session;
+
     if (cookie.token) {
-        var token = _.findKey(database.users, {token: cookie.token});
-        if (token) {
-            res.redirect('/chat');
-        } else {
-            res.redirect('/login');
-        }
+        (_.findKey(database.users, { token: cookie.token })) ? res.redirect('/chat') : res.redirect('/login');
     } else {
         res.redirect('/login');
     }
 });
 
 app.get('/login', (req, res) => {
-    if (req.session.token) res.redirect('/chat');
-    else res.sendFile(__dirname + '/public/login.html');
+    (req.session.token) ? res.redirect('/chat'): res.sendFile(__dirname + '/public/login.html');
 });
 
 app.get('/chat', (req, res) => {
-    if (!req.session.token) res.redirect('/login');
-    else res.sendFile(__dirname + '/public/index.html');
+    (!req.session.token) ? res.redirect('/login') : res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/register', (req, res) => {
@@ -103,13 +105,22 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
+/* // // /// // // */
+/* //    API    // */
+/* // // /// // // */
+
 app.all('/api/auth.login', (req, res) => {
     var session = req.session;
     var data = (req.query.username) ? req.query : req.body;
     var username = data.username.toLowerCase();
     var password = data.password;
     var hash = auth.hash(username, password);
-    crimson.debug('api/auth.login: ' + JSON.stringify({ok:hash.ok,ip:req.ip||req.connection.remoteAddress,username:data.username}));
+
+    crimson.debug('api/auth.login: ' + JSON.stringify({
+        "ok": hash.ok,
+        "ip": req.ip||req.connection.remoteAddress,
+        "username": data.username
+    }));
 
     if (hash.ok) {
         session.user = hash.username;
@@ -122,10 +133,10 @@ app.all('/api/auth.login', (req, res) => {
     }
 });
 
-app.post('/api/auth.register', (req, res) => {
+/*app.all('/api/auth.register', (req, res) => {
     var post = req.body;
     cache();
-});
+});*/
 
 app.all('/api/chat.post', (req, res) => {
     var session = req.session;
@@ -133,6 +144,10 @@ app.all('/api/chat.post', (req, res) => {
 
     if (data.token && data.text || data.html) {
         if (users[data.token]) {
+            crimson.debug(users[data.token].username + ': ' + safe(data.text));
+
+            save('message', time(), users[data.token].uuid, safe(data.text));
+
             var object = {
                 "ok": true,
                 "ts": time(),
@@ -140,24 +155,53 @@ app.all('/api/chat.post', (req, res) => {
                 "icon": users[data.token].icon,
                 "message": safe(data.text)
             };
-            crimson.debug('api/chat.post: ' + JSON.stringify({ok:true,ts:time(),username:users[data.token].username,message:safe(data.text)}));
-            save('message', time(), users[data.token].uuid, safe(data.text));
 
+            res.status(200);
             res.json(object);
             io.emit('chat.post', object);
         } else {
-            var error = 'User/Bot Doesn\'t exist';
-            res.json({"ok": false, "ts": time(), "reason": error});
-            crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
+            res.status(400);
+            res.json({
+                "ok": false, 
+                "ts": time(), 
+                "code": "ERR_USER_NOEXIST",
+                "reason": "User doesn\'t exist"
+            });
+
+            crimson.debug('api/chat.post: ' + JSON.stringify({
+                "ok": false,
+                "ts": time(),
+                "code": "ERR_USER_NOEXIST"
+            }));
         }
     } else if (!data.token) {
-        var error = 'Missing field: Token';
-        res.json({"ok": false, "ts": time(), "reason": error});
-        crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
+        res.status(401);
+        res.json({
+            "ok": false, 
+            "ts": time(), 
+            "code": "ERR_MISSING_TOKEN", 
+            "reason": "Missing required field: Token"
+        });
+
+        crimson.debug('api/chat.post: ' + JSON.stringify({
+            "ok": false,
+            "ts": time(),
+            "code": "ERR_MISSING_TOKEN"
+        }));
     } else if (!data.text || !data.html) {
-        var error = 'Missing field: Text/HTML';
-        res.json({"ok": false, "ts": time(), "reason": error});
-        crimson.debug('api/chat.post: ' + JSON.stringify({ok:false,ts:time(),reason:error}));
+        res.status(400);
+        res.json({
+            "ok": false, 
+            "ts": time(), 
+            "code": "ERR_MISSING_TEXT", 
+            "reason": "Missing required field: Text (or HTML)"
+        });
+
+        crimson.debug('api/chat.post: ' + JSON.stringify({
+            "ok": false,
+            "ts": time(),
+            "code": "ERR_MISSING_TEXT"
+        }));
     }
 
     // { "token": "", "text": "", "html": { "title": "", "text": "", "image": "" } }
@@ -166,8 +210,17 @@ app.all('/api/chat.post', (req, res) => {
 app.all('/api/chat.delete', (req, res) => {
     var session = req.session;
     var data = (req.query.username) ? req.query : req.body;
-    res.json({"ok":false})
+    res.status(405)
+    res.json({ "ok": false })
 });
+
+app.use((req, res) => {
+    res.send('<pre>"ok": false, "code": "ERR_NOT_FOUND"</pre>', 404);
+});
+
+/* // // //// // // */
+/* // Web Socket // */
+/* // // //// // // */
 
 io.on('connection', (socket) => {
     socket.on('auth.user', (data) => {
@@ -176,15 +229,19 @@ io.on('connection', (socket) => {
             socket.username = users[socket.token].username;
             socket.id = users[socket.token].uuid;
             socket.icon = users[socket.token].icon;
+
             users[socket.token].online = true;
             crimson.success(socket.username + ' is now active!');
+
             ++count;
+
             socket.emit('user.auth', {
                 "ok": true,
                 "ts": time(),
                 "username": socket.username,
                 "token": socket.token
             });
+
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
@@ -193,9 +250,11 @@ io.on('connection', (socket) => {
             });
         } else {
             crimson.error(data);
+
             socket.emit('error', {
                 "ok": false,
                 "ts": time(),
+                "code": "ERR_BADAUTH",
                 "disconnect": true,
                 "reason": data.reason
             });
@@ -203,23 +262,27 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat.post', (data) => {
-        var timestamp = time();
-        crimson.info(socket.username + ': ' + data.message);
-        save('message', timestamp, users[socket.token].uuid, data.message);
+        var message = safe(data.message);
+
+        crimson.info(socket.username + ': ' + message);
+        save('message', time(), users[socket.token].uuid, message);
+
         io.emit('chat.post', {
             "ok": true,
-            "ts": timestamp,
+            "ts": time(),
             "username": socket.username,
             "icon": users[socket.token].icon,
-            "message": safe(data.message)
+            "message": message
         });
     });
 
     socket.on('disconnect', () => {
         if (socket.username) {
             crimson.error(socket.username + ' is now away.');
+
             users[socket.token].online = false;
             --count;
+
             io.emit('presence.change', {
                 "ok": true,
                 "ts": time(),
@@ -229,6 +292,12 @@ io.on('connection', (socket) => {
         }
     });
 });
+
+/* // // /// // // */
+/* //   Start   // */
+/* // // /// // // */
+
+cache();
 
 http.listen(port, () => {
     crimson.success('Listening on ' + ip.address() + ':' + port);
