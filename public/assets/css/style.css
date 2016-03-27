@@ -203,12 +203,12 @@ a {
 
 .container .content .messages .message .msg-gutter {
     position: absolute;
-    padding-left: 8px;
+    padding-left: 10px;
     width: 36px;
 }
 
 .container .content .messages .message .msg-gutter img {
-    border-radius: 8px;
+    border-radius: 50%;
 }
 
 .container .content .messages .message .msg-gutter .chat-time {
@@ -219,8 +219,15 @@ a {
 
 .container .content .messages .message .msg-content {
     padding-top: 0;
-    margin-left: 54px;
+    margin-left: 60px;
     display: inline-block;
+    line-height: 19px;
+}
+
+.container .content .messages .message .msg-content .chat-msg {
+    font-size: inherit !important;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 .container .content .messages .message .msg-content .chat-user {
@@ -246,11 +253,6 @@ a {
     text-decoration: underline;
 }
 
-.container .content .messages .message .chat-msg {
-    word-break: break-all;
-    word-wrap: break-word;
-}
-
 .container .content .messages .message.inline .chat-time {
     visibility: hidden;
     cursor: pointer;
@@ -270,23 +272,6 @@ a {
 
 .container .content .messages .message.inline .chat-msg {
     padding-top: 0;
-}
-
-.container .content .messages .message .emoji-sizer {
-    display: inline-block;
-    width: 0.9em;
-    height: 0.9em;
-    font-size: 22px;
-}
-
-.container .content .messages .message .emoji {
-    display: inline-block;
-    text-indent: -9999px;
-    width: 100%;
-    height: 100%;
-    background: url(../img/sheet-google-64.png);
-    background-size: 4100%;
-    cursor: text;
 }
 
 @media (max-width: 680px) {
@@ -551,4 +536,52 @@ a {
 .nano:hover > .nano-pane, .nano-pane.active, .nano-pane.flashed {
   visibility : visible\9; /* Target only IE7 and IE8 with this hack */
   opacity    : 0.99;
+}
+
+span.emoji {
+    display: -moz-inline-box;
+    -moz-box-orient: vertical;
+    display: inline-block;
+    vertical-align: baseline;
+    *vertical-align: auto;
+    *zoom: 1;
+    *display: inline;
+    width: 1em;
+    height: 1em;
+    background-size: 1em;
+    background-repeat: no-repeat;
+    text-indent: -9999px;
+    background-position: 50%, 50%;
+    background-size: contain;
+}
+
+span.emoji-sizer {
+    line-height: inherit;
+    font-size: 1em;
+    margin: -2px 0;
+}
+
+span.emoji-outer {
+    display: -moz-inline-box;
+    display: inline-block;
+    *display: inline;
+    height: 1em;
+    width: 1em;
+}
+
+span.emoji-inner {
+    display: -moz-inline-box;
+    display: inline-block;
+    text-indent: -9999px;
+    margin-top: 4px;
+    width: 100%;
+    height: 100%;
+    vertical-align: baseline;
+    *vertical-align: auto;
+    *zoom: 1;
+}
+
+img.emoji {
+    width: 1em;
+    height: 1em;
 }

@@ -22,7 +22,7 @@ $(function() {
     
     function time() { return moment().format('X'); }
     
-    $(window).resize(function() { init() });
+    $(window).resize(function() { reinit() });
     $(window).focus(function() { active = true; });
     $(window).blur(function() { active = false; });
 
@@ -72,8 +72,7 @@ $(function() {
         var chat_content =  $('<div class="msg-content"></div>');
         var chat_user =     $('<span class="chat-user"></span>').text(data.username);
         var chat_time =     $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
-        var chat_msg =      $('<div class="chat-msg"></div>').html(markdown(emojalias(data.message)));
-        emoji(chat_msg);
+        var chat_msg =      $('<div class="chat-msg"></div>').html(markdown(emoji.replace_unified(emoji.replace_colons(emoji.replace_emoticons_with_colons(data.message)))));
         
         if (checkScroll() || !active) {
             reinit();
@@ -100,7 +99,13 @@ $(function() {
         last_user = data.username, last_ts = data.ts;
     }
 
-    $.preload('./assets/img/sheet-google-64.png');
+    $.preload('/assets/img/sheet-google-64.png');
+
+    emoji.img_sets['google']['sheet'] = '/assets/img/sheet-google-64.png';
+    emoji.include_title = true;
+    emoji.allow_native = false;
+    emoji.use_sheet = true;
+    emoji.img_set = 'google';
 
     socket.on('connect', function() {
         error('remove');
@@ -203,52 +208,6 @@ $(function() {
         $.each(markdown, function(i) {
             text = text.replace(markdown[i][0], markdown[i][1]);
         });
-        return text;
-    }
-
-    function emoji(input) {
-        $.getJSON('./assets/js/emoji.json', function(data) {
-            var sheet_max = 40;
-            $.each(data, function(i) {
-                $(input).text(function() {
-                    var message = $(this).html();
-                    var sheet_xx = (data[i].sheet_x / sheet_max) * 100;
-                    var sheet_yy = (data[i].sheet_y / sheet_max) * 100;
-                    var short_name = ':' + data[i].short_name + ':';
-                    var output = '<span class="emoji-sizer"><span class="emoji" style="background-position:' + sheet_xx + '% ' + sheet_yy + '%;" data-emoji="' + short_name + '"></span></span>';
-                    $(this).html(message.replace(short_name, output));
-                });
-            });
-        });
-    }
-
-    function emojalias(text) {
-        var aliases = [
-            [':)', ':slightly_smiling_face:'],
-            [':(', ':disappointed:'],
-            [':D', ':smile:'],
-            ['D:', ':anguished:'],
-            [';)', ':wink:'],
-            [':3', ':smiley_cat:'],
-            [':p', ':stuck_out_tongue:'],
-            [':P', ':stuck_out_tongue:'],
-            [':o', ':open_mouth:'],
-            [':O', ':open_mouth:'],
-            [':\'(', ':cry:'],
-            [':l', ':confused:'],
-            [':|', ':neutral_face:'],
-            [':/', ':confused:'],
-            ['>:(', ':angry:'],
-            ['>:)', ':smiling_imp:'],
-            ['<3', ':heart:'],
-            ['<*3', ':sparkling_heart:'],
-            ['</3', ':broken_heart:']
-        ];
-
-        $.each(aliases, function(i) {
-            text = text.replace(aliases[i][0], aliases[i][1]);
-        });
-
         return text;
     }
 });
