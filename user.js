@@ -36,7 +36,7 @@ prompt.get(format, function (error, result) {
     var email = result.email;
     var pass = result.password;
     var icon = crypto.createHash('md5').update(email).digest('hex');
-    var token = 'u' + crypto.randomBytes(12).toString('hex');
+    var token = 'xoxo-' + crypto.createHash('md5').update(result.username).digest('hex');
     var salt = crypto.randomBytes(24).toString('base64');
     var hash = crypto.createHash('sha256').update(pass + salt).digest('hex');
 
