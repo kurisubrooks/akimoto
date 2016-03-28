@@ -86,7 +86,7 @@ $(function() {
         var chat_div =      $('<div class="message" data-ts="' + data.ts + '"></div>');
         var chat_inline =   $('<div class="message inline" data-ts="' + data.ts + '"></div>');
         var chat_gutter =   $('<div class="msg-gutter"></div>');
-        var chat_image =    $('<img src="https://www.gravatar.com/avatar/' + data.icon + '?s=256" width="38px">');
+        var chat_image =    $('<img src="https://www.gravatar.com/avatar/' + storage.users[data.username].icon + '?s=256" width="38px">');
         var chat_content =  $('<div class="msg-content"></div>');
         var chat_user =     $('<span class="chat-user"></span>').text(data.username);
         var chat_time =     $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
@@ -199,13 +199,13 @@ $(function() {
         storage.users = data.presence;
         console.info('presence.change', storage.users);
 
-        /*var users = [];
+        var users = [];
         $.each(data.presence, function(key, value) {
-            if (value) users.push('<li><i class="fa fw-fw fa-circle presence-icon"></i><span id="user">' + key + '</span></li>');
-            else       users.push('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i><span id="user">' + key + '</span></li>');
+            if (value.presence) users.push('<li><i class="fa fw-fw fa-circle presence-icon"></i><span id="user">' + key + '</span></li>');
+            else                users.push('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i><span id="user">' + key + '</span></li>');
         });
 
-        $online_users.html(users.join(''));*/
+        $online_users.html(users.join(''));
     });
 
     socket.on('chat.post', function(data) {
