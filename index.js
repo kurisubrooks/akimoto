@@ -58,6 +58,7 @@ function presence() {
     var toReturn = {};
     _.map(users, o => toReturn[o.username] = {
         uuid: o.uuid,
+        admin: o.admin,
         username: o.username,
         presence: o.online,
         icon: o.icon
@@ -132,7 +133,7 @@ app.all('/api/auth.login', (req, res) => {
 
     crimson.debug('api/auth.login: ' + JSON.stringify({
         "ok": hash.ok,
-        "ip": req.ip||req.connection.remoteAddress,
+        "ip": req.ip || req.connection.remoteAddress,
         "username": data.username
     }));
 
@@ -166,7 +167,6 @@ app.all('/api/chat.post', (req, res) => {
                 "ok": true,
                 "ts": time(),
                 "username": users[data.token].username,
-                "icon": users[data.token].icon,
                 "message": safe(data.text)
             };
 
@@ -175,38 +175,32 @@ app.all('/api/chat.post', (req, res) => {
         } else {
             res.json({
                 "ok": false,
-                "ts": time(),
                 "code": "ERR_USER_NOEXIST"
             }).status(400);
 
             crimson.debug('api/chat.post: ' + JSON.stringify({
                 "ok": false,
-                "ts": time(),
                 "code": "ERR_USER_NOEXIST"
             }));
         }
     } else if (!data.token) {
         res.json({
             "ok": false,
-            "ts": time(),
             "code": "ERR_MISSING_TOKEN"
         }).status(401);
 
         crimson.debug('api/chat.post: ' + JSON.stringify({
             "ok": false,
-            "ts": time(),
             "code": "ERR_MISSING_TOKEN"
         }));
     } else if (!data.text || !data.html) {
         res.json({
             "ok": false,
-            "ts": time(),
             "code": "ERR_MISSING_TEXT"
         }).status(400);
 
         crimson.debug('api/chat.post: ' + JSON.stringify({
             "ok": false,
-            "ts": time(),
             "code": "ERR_MISSING_TEXT"
         }));
     }
@@ -243,14 +237,12 @@ io.on('connection', (socket) => {
 
             socket.emit('auth.user', {
                 "ok": true,
-                "ts": time(),
                 "username": socket.username,
                 "token": socket.token
             });
 
             io.emit('presence.change', {
                 "ok": true,
-                "ts": time(),
                 "presence": presence(),
                 "count": count
             });
@@ -259,7 +251,6 @@ io.on('connection', (socket) => {
 
             socket.emit('error', {
                 "ok": false,
-                "ts": time(),
                 "code": "ERR_BAD_AUTH",
                 "disconnect": true
             });
@@ -280,27 +271,29 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on("chat.edit", (data) => {
-        var matchTS = _.filter(chat.chat, {"ts": data.ts});
+    socket.on('chat.edit', (data) => {
+        var matchTS = _.filter(chat.chat, { "ts": data.ts });
         console.log(matchTS);
-        if(matchTS.length < 1) {
-            socket.emit("chat.edit", {
+        
+        if (matchTS.length < 1) {
+            socket.emit('chat.edit', {
                 "ok": false,
                 "code": "ERR_NOT_FOUND"
             });
         } else {
-            matchUser = _.filter(matchTS, {"user": users[socket.token].uuid});
-            if(matchUser.length < 1 && !users[socket.token].admin) {
-                socket.emit("chat.edit", {
+            matchUser = _.filter(matchTS, { 'user': users[socket.token].uuid });
+            if (matchUser.length < 1 && !users[socket.token].admin) {
+                socket.emit('chat.edit', {
                     "ok": false,
                     "code": "ERR_NO_PERMISSION"
                 });
             } else {
-                io.emit("chat.edit", {
+                io.emit('chat.edit', {
                     "ok": true,
-                    "message": data.message,
-                    "ts": data.ts
+                    "ts": data.ts,
+                    "message": data.message
                 });
+
                 // somehow change logs. maybe add new log saying message changed?
             }
         }
@@ -315,7 +308,6 @@ io.on('connection', (socket) => {
 
             io.emit('presence.change', {
                 "ok": true,
-                "ts": time(),
                 "presence": presence(),
                 "count": count
             });
@@ -330,5 +322,5 @@ io.on('connection', (socket) => {
 cache();
 
 http.listen(port, () => {
-    crimson.success('Listening on ' + ip + ':' + port);
+    crimson.success('Listening on http://localhost:' + port);
 });

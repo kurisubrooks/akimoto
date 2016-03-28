@@ -240,12 +240,12 @@ $(function() {
         });
     }
 
-    socket.on("chat.edit", function(editData) {
-        if(editData.ok === false) {
+    socket.on("chat.edit", function(data) {
+        if (data.ok === false) {
             // do the red thing here
         } else {
             // do the message change thing.
-            // editData: message, ts, ok, code
+            // data: message, ts, ok, code
         }
     });
 
