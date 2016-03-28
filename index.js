@@ -53,7 +53,12 @@ function cache() {
 
 function presence() {
     var toReturn = {};
-    _.map(users, o => toReturn[o.username] = o.online);
+    _.map(users, o => toReturn[o.username] = {
+        uuid: o.uuid,
+        username: o.username,
+        presence: o.online,
+        icon: o.icon
+    });
 
     return toReturn;
 }
@@ -64,9 +69,7 @@ function time() {
 
 function safe(input) {
     var one = input.replace(/</g, '&lt;');
-    var two = one.replace(/>/g, '&gt;');
-
-    return two;
+    return two = one.replace(/>/g, '&gt;');
 }
 
 function save(type, ts, user, msg) {
@@ -108,6 +111,7 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
+    req.session.user = '';
     req.session.token = '';
     res.redirect('/login');
 });
@@ -234,7 +238,7 @@ io.on('connection', (socket) => {
 
             ++count;
 
-            socket.emit('user.auth', {
+            socket.emit('auth.user', {
                 "ok": true,
                 "ts": time(),
                 "username": socket.username,
@@ -269,7 +273,6 @@ io.on('connection', (socket) => {
             "ok": true,
             "ts": time(),
             "username": socket.username,
-            "icon": users[socket.token].icon,
             "message": message
         });
     });
