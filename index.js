@@ -1,23 +1,26 @@
+// Modules
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const crimson = require('crimson');
+const moment = require('moment');
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const _ = require('lodash');
+
+// Middleware
 const postman = require('body-parser');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const crimson = require('crimson');
-const moment = require('moment');
-const crypto = require('crypto');
-const uuid = require('node-uuid');
-const path = require('path');
-const fs = require('fs');
-const ip = require('ip');
-const _ = require('lodash');
 
+// Local
 const database = require('./database.json');
 const keychain = require('./keychain');
 const auth = require('./auth');
+const ip = require('os').networkInterfaces().en1[1].address;
 const port = 3000;
 
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
@@ -26,7 +29,11 @@ app.use(morgan('short'));
 app.use(cookieParser(keychain.session));
 app.use(postman.json());
 app.use(postman.urlencoded({extended: true}));
-app.use(session({secret: keychain.session}));
+app.use(session({
+    secret: keychain.session,
+    resave: true,
+    saveUninitialized: true
+}));
 
 var users = {};
 var count = 0;
@@ -156,17 +163,14 @@ app.all('/api/chat.post', (req, res) => {
                 "message": safe(data.text)
             };
 
-            res.status(200);
-            res.json(object);
+            res.json(object).status(200);
             io.emit('chat.post', object);
         } else {
-            res.status(400);
             res.json({
-                "ok": false, 
-                "ts": time(), 
-                "code": "ERR_USER_NOEXIST",
-                "reason": "User doesn\'t exist"
-            });
+                "ok": false,
+                "ts": time(),
+                "code": "ERR_USER_NOEXIST"
+            }).status(400);
 
             crimson.debug('api/chat.post: ' + JSON.stringify({
                 "ok": false,
@@ -175,13 +179,11 @@ app.all('/api/chat.post', (req, res) => {
             }));
         }
     } else if (!data.token) {
-        res.status(401);
         res.json({
-            "ok": false, 
-            "ts": time(), 
-            "code": "ERR_MISSING_TOKEN", 
-            "reason": "Missing required field: Token"
-        });
+            "ok": false,
+            "ts": time(),
+            "code": "ERR_MISSING_TOKEN"
+        }).status(401);
 
         crimson.debug('api/chat.post: ' + JSON.stringify({
             "ok": false,
@@ -189,13 +191,11 @@ app.all('/api/chat.post', (req, res) => {
             "code": "ERR_MISSING_TOKEN"
         }));
     } else if (!data.text || !data.html) {
-        res.status(400);
         res.json({
-            "ok": false, 
-            "ts": time(), 
-            "code": "ERR_MISSING_TEXT", 
-            "reason": "Missing required field: Text (or HTML)"
-        });
+            "ok": false,
+            "ts": time(),
+            "code": "ERR_MISSING_TEXT"
+        }).status(400);
 
         crimson.debug('api/chat.post: ' + JSON.stringify({
             "ok": false,
@@ -210,12 +210,11 @@ app.all('/api/chat.post', (req, res) => {
 app.all('/api/chat.delete', (req, res) => {
     var session = req.session;
     var data = (req.query.username) ? req.query : req.body;
-    res.status(405)
-    res.json({ "ok": false })
+    res.json({ "ok": false }).status(405);
 });
 
 app.use((req, res) => {
-    res.send('<pre>"ok": false, "code": "ERR_NOT_FOUND"</pre>', 404);
+    res.send('<pre>"ok": false, "code": "ERR_NOT_FOUND"</pre>').status(404);
 });
 
 /* // // //// // // */
@@ -254,9 +253,8 @@ io.on('connection', (socket) => {
             socket.emit('error', {
                 "ok": false,
                 "ts": time(),
-                "code": "ERR_BADAUTH",
-                "disconnect": true,
-                "reason": data.reason
+                "code": "ERR_BAD_AUTH",
+                "disconnect": true
             });
         }
     });
@@ -300,5 +298,5 @@ io.on('connection', (socket) => {
 cache();
 
 http.listen(port, () => {
-    crimson.success('Listening on ' + ip.address() + ':' + port);
+    crimson.success('Listening on ' + ip + ':' + port);
 });
