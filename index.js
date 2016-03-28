@@ -281,7 +281,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on("chat.edit", (data) => {
-        var matchTS = _.filter(chat, {"ts": data.ts});
+        var matchTS = _.filter(chat.chat, {"ts": data.ts});
+        console.log(matchTS);
         if(matchTS.length < 1) {
             socket.emit("chat.edit", {
                 "ok": false,

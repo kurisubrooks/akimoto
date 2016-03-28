@@ -233,10 +233,10 @@ $(function() {
         }
     });
 
-    function edit(ts, message) {
+    function edit(data) {
         socket.emit("chat.edit", {
-            "ts": ts,
-            "message": message
+            "ts": data.ts,
+            "message": data.message
         });
     }
 
