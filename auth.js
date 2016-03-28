@@ -19,8 +19,7 @@ exports.hash = (username, password) => {
     if (!database.users[user]) return {
         "ok": false,
         "ts": time(),
-        "code": "ERR_USER_NOEXIST",
-        "reason": "User doesn\'t exist"
+        "code": "ERR_USER_NOEXIST"
     };
 
     var salt = database.users[user].salt;
@@ -37,8 +36,7 @@ exports.hash = (username, password) => {
         return {
             "ok": false,
             "ts": time(),
-            "code": "ERR_PASSWD_INCORRECT",
-            "reason": "Incorrect Password"
+            "code": "ERR_PASSWD_INCORRECT"
         };
     }
 };
