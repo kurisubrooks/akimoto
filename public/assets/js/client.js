@@ -16,22 +16,24 @@ $(function() {
     var scrolled = true;
     var active = true;
 
+    $(window).resize(function() { reinit(); });
+    $(window).focus(function() { active = true; });
+    $(window).blur(function() { active = false; });
+
     $.preload = function() {
         for (var i = 0; i < arguments.length; i++) $('<img />').attr('src', arguments[i]);
     };
-    
-    function time() { return moment().format('X'); }
-    
-    $(window).resize(function() { reinit() });
-    $(window).focus(function() { active = true; });
-    $(window).blur(function() { active = false; });
+
+    function time() {
+        return moment().format('X');
+    }
 
     function reinit() {
         $nano.nanoScroller({ destroy: true });
         $nano.nanoScroller({ alwaysVisible: true, scroll: 'bottom' });
         $nano.height($height);
     }
-    
+
     function checkScroll() {
         if ($client[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
             scrolled = true;
@@ -73,11 +75,6 @@ $(function() {
         var chat_user =     $('<span class="chat-user"></span>').text(data.username);
         var chat_time =     $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
         var chat_msg =      $('<div class="chat-msg"></div>').html(markdown(emoji.replace_unified(emoji.replace_colons(emoji.replace_emoticons_with_colons(data.message)))));
-        
-        if (checkScroll() || !active) {
-            reinit();
-            window.scrollTo(0, $client.scrollHeight);
-        }
 
         if (!active) newNotification(data);
         if (last_ts > (data.ts - 300) && last_user == data.username) {
@@ -95,13 +92,19 @@ $(function() {
             chat_div.append(chat_content);
             $client.append(chat_div);
         }
-        
-        last_user = data.username, last_ts = data.ts;
+
+        if (checkScroll() || !active) {
+            reinit();
+            window.scrollTo(0, $client.scrollHeight);
+        }
+
+        last_user = data.username;
+        last_ts = data.ts;
     }
 
     $.preload('/assets/img/sheet-google-64.png');
 
-    emoji.img_sets['google']['sheet'] = '/assets/img/sheet-google-64.png';
+    emoji.img_sets.google.sheet = '/assets/img/sheet-google-64.png';
     emoji.include_title = true;
     emoji.allow_native = false;
     emoji.use_sheet = true;
@@ -110,25 +113,32 @@ $(function() {
     socket.on('connect', function() {
         error('remove');
     });
+
     socket.on('reconnect', function() {
         error('remove');
         location.reload();
     });
+
     socket.on('error', function() {
         error('error', 'Unknown Error');
     });
+
     socket.on('timeout', function() {
         error('error', 'Connection Timed Out');
     });
+
     socket.on('disconnect', function() {
         error('error', 'Disconnected from Server, retrying...');
     });
+
     socket.on('connect_timeout', function() {
         error('error', 'Couldn\'t Reconnect');
     });
+
     socket.on('reconnect_error', function() {
         error('error', 'Unable to Reconnect, retrying...');
     });
+
     socket.on('reconnect_failed', function() {
         error('error', 'Unable to Reconnect. Please refresh!');
     });
@@ -152,6 +162,7 @@ $(function() {
     socket.on('error', function(data) {
         $error_bar.text('Error: ' + data.reason);
         $error_bar.slideDown('fast');
+
         if (data.disconnect) socket.disconnect();
     });
 
@@ -166,15 +177,18 @@ $(function() {
     socket.on('presence.change', function(data) {
         console.log(data.presence);
         var users = [];
+
         $.each(data.presence, function(key, value) {
             if (value) users.push('<li><i class="fa fw-fw fa-circle presence-icon"></i> <span id="user">' + key + '</span></li>');
             else users.push('<li><i class="fa fw-fw fa-circle-thin presence-icon"></i> <span id="user">' + key + '</span></li>');
         });
+
         $online_users.html(users.join(''));
     });
 
     socket.on('chat.post', function(data) {
         console.log(data);
+
         if (!data.ok) $chat_box.css('border-color', '#e65757');
         else {
             post(data);
@@ -195,7 +209,7 @@ $(function() {
             return false;
         }
     });
-    
+
     function markdown(text) {
         var markdown = [
             [/(^|\s+)\[([^\[]+)\]\(([^\)]+)\)(\s+|$)/g, ' <a href="$3">$2</a> '],
@@ -205,14 +219,18 @@ $(function() {
             [/(^|\s+)(`)(.*?)\2(\s+|$)/g, ' <code>$3</code> '],
             [/(^|\s+)(```)(.*?)\2(\s+|$)/g, ' <pre>$3</pre> ']
         ];
+
         $.each(markdown, function(i) {
             text = text.replace(markdown[i][0], markdown[i][1]);
         });
+
         return text;
     }
 });
 
 $(window).load(function() {
+    reinit();
+
     setTimeout(function() {
         $('.overlay').fadeOut('fast');
     }, 1000);
