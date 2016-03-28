@@ -23,6 +23,8 @@ const auth = require('./auth');
 const ip = require('os').networkInterfaces().en1[1].address;
 const port = 3000;
 
+const chat = require(path.join(__dirname, 'data', 'chat.json'));
+
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/data', express.static(path.join(__dirname, 'data')));
 app.use(morgan('short'));
@@ -46,6 +48,7 @@ function cache() {
             username: v.username,
             token: v.token,
             icon: v.icon,
+            admin: v.admin,
             online: false
         };
     });
@@ -75,7 +78,7 @@ function safe(input) {
 function save(type, ts, user, msg) {
     var file = path.join(__dirname, 'data', 'chat.json');
     var json = require(file);
-    var object = [{ "type": type, "ts": ts, "user": user, "message": msg }];
+    var object = {"type": type, "ts": ts, "user": user, "message": msg };
 
     json.chat.push(object);
 
@@ -275,6 +278,31 @@ io.on('connection', (socket) => {
             "username": socket.username,
             "message": message
         });
+    });
+
+    socket.on("chat.edit", (data) => {
+        var matchTS = _.filter(chat, {"ts": data.ts});
+        if(matchTS.length < 1) {
+            socket.emit("chat.edit", {
+                "ok": false,
+                "code": "ERR_NOT_FOUND"
+            });
+        } else {
+            matchUser = _.filter(matchTS, {"user": users[socket.token].uuid});
+            if(matchUser.length < 1 && !users[socket.token].admin) {
+                socket.emit("chat.edit", {
+                    "ok": false,
+                    "code": "ERR_NO_PERMISSION"
+                });
+            } else {
+                io.emit("chat.edit", {
+                    "ok": true,
+                    "message": data.message,
+                    "ts": data.ts
+                });
+                // somehow change logs. maybe add new log saying message changed?
+            }
+        }
     });
 
     socket.on('disconnect', () => {

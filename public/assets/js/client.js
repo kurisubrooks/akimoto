@@ -233,6 +233,22 @@ $(function() {
         }
     });
 
+    function edit(ts, message) {
+        socket.emit("chat.edit", {
+            "ts": ts,
+            "message": message
+        });
+    }
+
+    socket.on("chat.edit", function(editData) {
+        if(editData.ok === false) {
+            // do the red thing here
+        } else {
+            // do the message change thing.
+            // editData: message, ts, ok, code
+        }
+    });
+
     function markdown(text) {
         var markdown = [
             [/(^|\s+)\[([^\[]+)\]\(([^\)]+)\)(\s+|$)/g, ' <a href="$3">$2</a> '],
