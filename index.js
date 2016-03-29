@@ -78,7 +78,7 @@ function safe(input) {
 function save(type, ts, user, msg) {
     var file = path.join(__dirname, 'data', 'chat.json');
     var json = require(file);
-    var object = {"type": type, "ts": ts, "user": user, "message": msg };
+    var object = { "type": type, "ts": ts, "user": user, "message": msg };
 
     json.chat.push(object);
     fs.writeFile(file, JSON.stringify(json, null, 4), (err) => {
@@ -93,10 +93,7 @@ function save(type, ts, user, msg) {
 app.get('/', (req, res) => {
     var cookie = req.session;
 
-    res.redirect(
-            cookie.token && _.findKey(database.users, { token: cookie.token }) ?
-            '/chat' : '/login'
-    );
+    res.redirect(cookie.token && _.findKey(database.users, { token: cookie.token }) ? '/chat' : '/login');
 });
 
 app.get('/login', (req, res) => {
