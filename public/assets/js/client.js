@@ -67,6 +67,23 @@ $(function() {
         }, 5000);
     }
 
+    function modal(type, text) {
+        if (type === 'open') {
+            $(".overlay").css("background-color", "rgba(0,0,0,0.3");
+            $(".overlay").fadeIn('fast');
+            $(".modal").fadeIn('slow');
+            $(".modal .inner p").html(text);
+        } else if (type === 'close') {
+            $(".overlay").fadeOut('fast');
+            $(".modal").fadeOut('fast');
+        }
+
+        $(".overlay").css("background-color", "rgba(0,0,0,0.3");
+        $(".overlay").fadeIn('fast');
+        $(".modal").fadeIn('slow');
+        $(".modal .inner p").html(text);
+    }
+
     function error(type, message, disconnect) {
         if (type === 'error') {
             $error_bar.text('Error: ' + message);
@@ -122,6 +139,7 @@ $(function() {
     $.preload('/assets/img/sheet-google-64.png');
 
     emoji.img_sets.google.sheet = '/assets/img/sheet-google-64.png';
+    emoji.img_sets.apple.sheet = '/assets/img/sheet-apple-64.png';
     emoji.include_title = true;
     emoji.allow_native = false;
     emoji.use_sheet = true;
@@ -244,6 +262,7 @@ $(function() {
         if (data.ok === false) {
             // do the red thing here
         } else {
+            $('div.chat-msg[data-ts="' + data.ts + '"]').html(markdown(emoji.replace_unified(emoji.replace_colons(emoji.replace_emoticons_with_colons(data.message)))));
             // do the message change thing.
             // data: message, ts, ok, code
         }
@@ -272,6 +291,7 @@ $(function() {
 $(window).load(function() {
     setTimeout(function() {
         $('.overlay').fadeOut('fast');
+        $('.shrink').hide();
     }, 1000);
 
     if (!('Notification' in window)) {
