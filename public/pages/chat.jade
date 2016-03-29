@@ -1,0 +1,55 @@
+doctype html
+html
+    head
+        title Akimoto
+        meta(charset='utf-8')
+        meta(name='theme-color', content='#333333')
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(href='https://fonts.googleapis.com/css?family=Lato:300,400,400italic,700', rel='stylesheet', type='text/css')
+        link(href='./assets/css/style.css', rel='stylesheet', type='text/css')
+        script(src='./assets/js/lib/jquery.js')
+        script(src='./assets/js/lib/socket.js')
+        script(src='./assets/js/lib/moment.js')
+        script(src='./assets/js/lib/lodash.js')
+        script(src='./assets/js/lib/bakery.js')
+        script(src='./assets/js/lib/nano.js')
+        script(src='./assets/js/lib/emoji.js')
+        script(src='./assets/js/client.js')
+    body
+        div.overlay
+            div.shrink
+                div.spinner
+                    div.bounce1
+                    div.bounce2
+                    div.bounce3
+
+            div.modal
+                div.inner
+                    p
+                        h2 Title
+                        | Wonderful! 😊
+
+        div.container
+            div.sidebar
+                div.users
+                    h3 Users
+                    ul#users
+
+            div.content
+                div.header
+                    span.brand Akimoto
+                    span.toolbar
+                        a(href='/logout') Sign Out
+
+                div.status
+                div.messages.nano
+                    div.chat.nano-content
+
+                div.footer
+                    form.send(action='')
+                        input.input(type='text', autocomplete='off', autofocus='')
+    
+        // Unimportant things load last
+        link(href='https://fonts.googleapis.com/earlyaccess/notosansjp.css', rel='stylesheet', type='text/css')
+        link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+        link(href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500', rel='stylesheet', type='text/css')

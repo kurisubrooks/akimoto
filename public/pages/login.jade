@@ -1,0 +1,41 @@
+doctype html
+html
+    head
+        title Akimoto
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(href='https://fonts.googleapis.com/css?family=Lato:300,400,400italic,700', rel='stylesheet', type='text/css')
+        link(href='./assets/css/style.css', rel='stylesheet')
+        script(src='./assets/js/lib/jquery.js')
+        script.
+            $(function() {
+                function parmesan(input) {
+                    var url = decodeURIComponent(window.location.search.substring(1));
+                    var yuru = url.split('&'), cheese, i;
+                    for (i = 0; i < yuru.length; i++) {
+                        cheese = yuru[i].split('=');
+                        if (cheese[0] === input) return cheese[1] === undefined ? true : cheese[1];
+                    }
+                }
+
+                var error = parmesan('error');
+                if (error) {
+                    $('#login-error').show();
+                    $('#login-error').html('<b>Error: </b>' + error);
+                }
+            });
+    body
+        div.login
+            h1.login-title Sign in
+            div#login-error
+            h4.login-message Sign in with your username and password.
+            form#login-form(method='POST', action='/api/auth.login')
+                input#input-username.auth-input(name='username', type='text', placeholder='Username', autofocus='', required='')
+                input#input-password.auth-input(name='password', type='password', placeholder='Password', autocomplete='off', required='')
+
+                div
+                    .left 
+                        button.auth-submit(type='submit') Sign In
+                    .login-tools.right
+                        a.auth-register.bold(href='/register') Create Account
+                        a.auth-forgot.bold(href='/forgot') Forgot Password
