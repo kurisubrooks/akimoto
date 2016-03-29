@@ -6,6 +6,7 @@ const crimson = require('crimson');
 const moment = require('moment');
 const crypto = require('crypto');
 const path = require('path');
+const jade = require('jade');
 const fs = require('fs');
 const _ = require('lodash');
 
@@ -27,6 +28,9 @@ try {
 
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/data', express.static(path.join(__dirname, 'data')));
+app.set('view engine', 'jade');
+app.set('view options', { pretty: true });
+app.set('views', path.join(__dirname, 'public', 'pages'));
 app.use(morgan('short'));
 app.use(cookieParser(keychain.session));
 app.use(postman.json());
@@ -92,22 +96,21 @@ function save(type, ts, user, msg) {
 
 app.get('/', (req, res) => {
     var cookie = req.session;
-
     res.redirect(cookie.token && _.findKey(database.users, { token: cookie.token }) ? '/chat' : '/login');
 });
 
 app.get('/login', (req, res) => {
-    if(req.session.token) res.redirect('/chat');
-    else res.sendFile(__dirname + '/public/login.html');
+    if (req.session.token) res.redirect('/chat');
+    else res.render('login');
 });
 
 app.get('/chat', (req, res) => {
-    if(!req.session.token) res.redirect('/login');
-    else res.sendFile(__dirname + '/public/index.html');
+    if (!req.session.token) res.redirect('/login');
+    else res.render('chat');
 });
 
 app.get('/register', (req, res) => {
-    res.sendFile(__dirname + '/public/register.html');
+    res.render('register');
 });
 
 app.get('/logout', (req, res) => {
