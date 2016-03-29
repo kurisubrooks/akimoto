@@ -100,6 +100,8 @@ $(function() {
     }
 
     function post(data) {
+        checkScroll();
+
         var chat_div =      $('<div class="message" data-ts="' + data.ts + '"></div>');
         var chat_inline =   $('<div class="message inline" data-ts="' + data.ts + '"></div>');
         var chat_gutter =   $('<div class="msg-gutter"></div>');
@@ -127,9 +129,9 @@ $(function() {
             $client.append(chat_div);
         }
 
-        if (checkScroll() || !storage.active) {
+        if (storage.scrolled || !storage.active) {
             reinit();
-            window.scrollTo(0, $client.scrollHeight);
+            $client.scrollTop($client[0].scrollHeight);
         }
 
         storage.last_user = data.username;
