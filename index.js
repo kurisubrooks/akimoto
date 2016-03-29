@@ -1,4 +1,3 @@
-// Modules
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
@@ -10,27 +9,28 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 
-// Middleware
 const postman = require('body-parser');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-
-// Local
-const database = require('./database.json');
-const keychain = require('./keychain');
-const auth = require('./auth');
-const ip = require('os').networkInterfaces().en1[1].address;
 const port = 3000;
 
-const chat = require(path.join(__dirname, 'data', 'chat.json'));
+try {
+    const database = require('./database.json');
+    const keychain = require('./keychain.js');
+    const chat = require('./data/chat.json');
+    const auth = require('./auth.js');
+} catch(e) {
+    crimson.error('a module is missing, run `node setup` to generate the files');
+    throw e;
+}
 
 app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
 app.use('/data', express.static(path.join(__dirname, 'data')));
 app.use(morgan('short'));
 app.use(cookieParser(keychain.session));
 app.use(postman.json());
-app.use(postman.urlencoded({extended: true}));
+app.use(postman.urlencoded({ extended: true }));
 app.use(session({
     secret: keychain.session,
     resave: true,
@@ -82,7 +82,6 @@ function save(type, ts, user, msg) {
     var object = {"type": type, "ts": ts, "user": user, "message": msg };
 
     json.chat.push(object);
-
     fs.writeFile(file, JSON.stringify(json, null, 4), (err) => {
         if (err) crimson.fatal(err);
     });
@@ -131,11 +130,7 @@ app.all('/api/auth.login', (req, res) => {
     var password = data.password;
     var hash = auth.hash(username, password);
 
-    crimson.debug('api/auth.login: ' + JSON.stringify({
-        "ok": hash.ok,
-        "ip": req.ip || req.connection.remoteAddress,
-        "username": data.username
-    }));
+    crimson.debug('auth.login - ok: ' + hash.ok + ', user: ' +  data.username + ', ip: ' + req.ip);
 
     if (hash.ok) {
         session.user = hash.username;
@@ -144,14 +139,9 @@ app.all('/api/auth.login', (req, res) => {
         res.cookie('token', hash.token);
         res.redirect('/chat');
     } else {
-        res.redirect('/login?error=' + encodeURIComponent(hash.reason));
+        res.redirect('/login?error=' + encodeURIComponent(hash.code));
     }
 });
-
-/*app.all('/api/auth.register', (req, res) => {
-    var post = req.body;
-    cache();
-});*/
 
 app.all('/api/chat.post', (req, res) => {
     var session = req.session;
@@ -178,10 +168,7 @@ app.all('/api/chat.post', (req, res) => {
                 "code": "ERR_USER_NOEXIST"
             }).status(400);
 
-            crimson.debug('api/chat.post: ' + JSON.stringify({
-                "ok": false,
-                "code": "ERR_USER_NOEXIST"
-            }));
+            crimson.debug('chat.post - ok: false, code: ERR_USER_NOEXIST');
         }
     } else if (!data.token) {
         res.json({
@@ -189,26 +176,26 @@ app.all('/api/chat.post', (req, res) => {
             "code": "ERR_MISSING_TOKEN"
         }).status(401);
 
-        crimson.debug('api/chat.post: ' + JSON.stringify({
-            "ok": false,
-            "code": "ERR_MISSING_TOKEN"
-        }));
+        crimson.debug('chat.post - ok: false, code: ERR_MISSING_TOKEN');
     } else if (!data.text || !data.html) {
         res.json({
             "ok": false,
             "code": "ERR_MISSING_TEXT"
         }).status(400);
 
-        crimson.debug('api/chat.post: ' + JSON.stringify({
-            "ok": false,
-            "code": "ERR_MISSING_TEXT"
-        }));
+        crimson.debug('chat.post - ok: false, code: ERR_MISSING_TEXT');
     }
 
     // { "token": "", "text": "", "html": { "title": "", "text": "", "image": "" } }
 });
 
 app.all('/api/chat.delete', (req, res) => {
+    var session = req.session;
+    var data = (req.query.username) ? req.query : req.body;
+    res.json({ "ok": false }).status(405);
+});
+
+app.all('/api/auth.register', (req, res) => {
     var session = req.session;
     var data = (req.query.username) ? req.query : req.body;
     res.json({ "ok": false }).status(405);
