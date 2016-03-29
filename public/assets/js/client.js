@@ -46,7 +46,7 @@ $(function() {
     }
 
     function checkScroll() {
-        if ($client[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
+        if (document.getElementsByClassName("chat")[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
             storage.scrolled = true;
             return true;
         } else {
