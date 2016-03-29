@@ -72,8 +72,7 @@ function time() {
 }
 
 function safe(input) {
-    var one = input.replace(/</g, '&lt;');
-    return two = one.replace(/>/g, '&gt;');
+    return input.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function save(type, ts, user, msg) {
@@ -94,19 +93,20 @@ function save(type, ts, user, msg) {
 app.get('/', (req, res) => {
     var cookie = req.session;
 
-    if (cookie.token) {
-        (_.findKey(database.users, { token: cookie.token })) ? res.redirect('/chat') : res.redirect('/login');
-    } else {
-        res.redirect('/login');
-    }
+    res.redirect(
+            cookie.token && _.findKey(database.users, { token: cookie.token }) ?
+            '/chat' : '/login'
+    );
 });
 
 app.get('/login', (req, res) => {
-    (req.session.token) ? res.redirect('/chat'): res.sendFile(__dirname + '/public/login.html');
+    if(req.session.token) res.redirect('/chat');
+    else res.sendFile(__dirname + '/public/login.html');
 });
 
 app.get('/chat', (req, res) => {
-    (!req.session.token) ? res.redirect('/login') : res.sendFile(__dirname + '/public/index.html');
+    if(!req.session.token) res.redirect('/login');
+    else res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/register', (req, res) => {
@@ -261,7 +261,7 @@ io.on('connection', (socket) => {
     socket.on('chat.edit', (data) => {
         var matchTS = _.filter(chat.chat, { "ts": data.ts });
         console.log(matchTS);
-        
+
         if (matchTS.length < 1) {
             socket.emit('chat.edit', {
                 "ok": false,
