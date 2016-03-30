@@ -1,5 +1,6 @@
 logs
 *.log
+*.tmp.js
 node_modules
 .DS_Store
 keychain.js
