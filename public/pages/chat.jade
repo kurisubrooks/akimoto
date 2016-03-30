@@ -16,18 +16,27 @@ html
         script(src='./assets/js/lib/emoji.js')
         script(src='./assets/js/client.js')
     body
-        div.overlay
-            div.shrink
+        div.overlay#loader
+            div.loader
                 div.spinner
                     div.bounce1
                     div.bounce2
                     div.bounce3
 
+        div.overlay#modal
             div.modal
-                div.inner
-                    p
-                        h2 Title
-                        | Wonderful! 😊
+                div.header
+                    h2 Edit Message
+                    div#close
+                        i.fa.fa-fw.fa-lg.fa-close
+                p.text
+                    img(src="https://www.gravatar.com/avatar/90cee90293de15330663c5e597e69895?s=32", style="display:inline-block;border-radius:.3em;")
+                    b &nbsp; Kurisu: 
+                    br
+                    br
+                    input(type="text", value="This is a test", autofocus)
+                div.footer
+                    button(onclick="") Confirm
 
         div.container
             div.sidebar
