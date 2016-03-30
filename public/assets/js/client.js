@@ -46,7 +46,7 @@ $(function() {
     }
 
     function checkScroll() {
-        if (document.getElementsByClassName("chat")[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
+        if ($client[0].scrollHeight - $client.scrollTop() == $client.outerHeight()) {
             storage.scrolled = true;
             return true;
         } else {
@@ -58,7 +58,7 @@ $(function() {
     function newNotification(data) {
         var notification = new Notification('Akimoto', {
             body: data.username + ': ' + data.message,
-            icon: 'https://www.gravatar.com/avatar/' + data.icon + '?s=256',
+            icon: 'https://www.gravatar.com/avatar/' + storage.users[data.username].icon + '?s=256',
             silent: true
         });
 
@@ -101,6 +101,8 @@ $(function() {
 
     function post(data) {
         checkScroll();
+
+        if (data.message.indexOf(''));
 
         var chat_div =      $('<div class="message" data-ts="' + data.ts + '"></div>');
         var chat_inline =   $('<div class="message inline" data-ts="' + data.ts + '"></div>');
