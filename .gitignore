@@ -5,3 +5,4 @@ node_modules
 .DS_Store
 keychain.js
 database.json
+chat.json
