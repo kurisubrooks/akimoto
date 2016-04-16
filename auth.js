@@ -1,5 +1,6 @@
 const crypto = require('crypto');
-const crimson = require('crimson');
+const Crimson = require('crimson');
+const crimson = new Crimson({});
 const uuid = require('node-uuid');
 const moment = require('moment');
 const path = require('path');
