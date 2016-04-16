@@ -1,7 +1,7 @@
 $(function() {
     var socket = io.connect();
-
     var ping = new Audio('/assets/audio/ping.mp3');
+    var notif = new Audio('/assets/audio/message.mp3');
 
     var $client = $('.chat');
     var $nano = $('.nano');
@@ -10,7 +10,6 @@ $(function() {
     var $error_bar = $('.status');
     var $online_users = $('#users');
     var $height = $('.content').height() - 5;
-    //var $height = $(window).height() - $('.footer').height() - $('.header').height() - 22;
 
     var storage = {
         username: undefined,
@@ -55,7 +54,7 @@ $(function() {
         }
     }
 
-    function newNotification(data) {
+    function notify(data) {
         var notification = new Notification('Akimoto', {
             body: data.username + ': ' + data.message,
             icon: 'https://www.gravatar.com/avatar/' + storage.users[data.username].icon + '?s=256',
@@ -67,15 +66,14 @@ $(function() {
         }, 5000);
     }
 
-    function modal(type, text) {
+    function modal(type, title, text, footer) {
         if (type === 'open') {
-            $(".overlay").css("background-color", "rgba(0,0,0,0.3");
-            $(".overlay").fadeIn('fast');
-            $(".modal").fadeIn('slow');
-            $(".modal .inner p").html(text);
+            $(".overlay#modal").fadeIn('fast');
+            $(".overlay#modal .header #title").html(title);
+            $(".overlay#modal .text").html(text);
+            $(".overlay#modal .footer").html(footer);
         } else if (type === 'close') {
-            $(".overlay").fadeOut('fast');
-            $(".modal").fadeOut('fast');
+            $(".overlay#modal").fadeOut('fast');
         }
 
         $(".overlay").css("background-color", "rgba(0,0,0,0.3");
@@ -113,7 +111,7 @@ $(function() {
         var chat_time =     $('<span class="chat-time"></span>').text(moment.unix(data.ts).format('h:mma'));
         var chat_msg =      $('<div class="chat-msg"></div>').html(markdown(emoji.replace_unified(emoji.replace_colons(emoji.replace_emoticons_with_colons(data.message)))));
 
-        if (!storage.active) newNotification(data);
+        if (!storage.active) notify(data);
         if (data.message.indexOf(storage.username) > -1) ping.play();
         if (storage.last_ts > (data.ts - 300) && storage.last_user == data.username) {
             chat_gutter.append(chat_time);
